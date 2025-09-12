@@ -32,6 +32,7 @@ def main(command_line=None):
 
     url_table = pd.read_csv(args.urls, sep='\t', index_col='# accession')
 
+    print(tree_string + '\n')
     for leaf_clade in tree.get_terminals():
         # in case we added a suffix
         accession = leaf_clade.name.split('-')[0]
