@@ -25,14 +25,19 @@ def main(command_line=None):
     args = parser.parse_args(command_line)
 
     tree = Phylo.read(args.tree, "newick")
-    tree_string = ''
-    with open(args.tree) as tree_file:
-        for line in tree_file:
-            tree_string += line.strip()
 
+    # strip out the confidence values which cactus will interpret as ancestor names
+    for anc_clade in tree.get_nonterminals():
+        anc_clade.confidence = None
+        if len(anc_clade) != 2:
+            sys.stderr.write('Error: input tree is not binary!\n')
+            return 1
+
+    Phylo.write(tree, sys.stdout, 'newick')
+    print('')
+    
     url_table = pd.read_csv(args.urls, sep='\t', index_col='# accession')
 
-    print(tree_string + '\n')
     for leaf_clade in tree.get_terminals():
         # in case we added a suffix
         accession = leaf_clade.name.split('-')[0]
