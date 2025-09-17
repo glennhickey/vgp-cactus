@@ -70,7 +70,7 @@ def main(command_line=None):
                     if len(tok) in [1,2] and tok[0].isupper() and (len(tok) == 1 or tok[1].isnumeric()):
                         chrom_list.append(tok)
                 if chrom_list:
-                    chrom_file.write(f'{leaf_clade.name}\t{','.join(chrom_list)}\n')
+                    chrom_file.write('{}\t{}\n'.format(leaf_clade.name, ','.join(chrom_list)))
                     
     
 if __name__ == '__main__':
