@@ -10,6 +10,8 @@ import subprocess
 import argparse
 from Bio import Phylo
 import pandas as pd
+import io
+import re
 
 def main(command_line=None):                     
     parser = argparse.ArgumentParser('Download some tables necessary to make the Cactus input')
@@ -33,7 +35,14 @@ def main(command_line=None):
             sys.stderr.write('Error: input tree is not binary!\n')
             return 1
 
-    Phylo.write(tree, sys.stdout, 'newick')
+    # make sure the ancestor doesn't have a distance
+    tree_stream = io.StringIO()
+    Phylo.write(tree, tree_stream, 'newick')
+    tree_stream.seek(0)
+    tree_string = tree_stream.read().strip()    
+    m = re.search(f':[0-9,.]*;', tree_string)
+    tree_string = tree_string.replace(m.group(), ';')
+    print(tree_string)    
     print('')
     
     url_table = pd.read_csv(args.urls, sep='\t', index_col='# accession')
