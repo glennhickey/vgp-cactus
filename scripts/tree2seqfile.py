@@ -23,6 +23,8 @@ def main(command_line=None):
                         help='Big vgp table for sex chromosome information, ex tables/VGPPhase1-freeze-1.0.tsv')
     parser.add_argument('--chrom-info', type=str,
                         help='Write sex chrom info to this file (requires --table)')
+    parser.add_argument('--suffix-only', action='store_true',
+                        help='Only keep suffix added by tree-extract.py --suffix-category')
                            
     args = parser.parse_args(command_line)
 
@@ -34,6 +36,14 @@ def main(command_line=None):
         if len(anc_clade) != 2:
             sys.stderr.write('Error: input tree is not binary!\n')
             return 1
+
+    # strip accesssions but remember them
+    name_to_accession = {}
+    for leaf_clade in tree.get_terminals():
+        accession = leaf_clade.name.split('-')[0]
+        name = leaf_clade.name.split('-')[-1] if args.suffix_only else leaf_clade.name
+        name_to_accession[name] = accession
+        leaf_clade.name = name
 
     # make sure the ancestor doesn't have a distance
     tree_stream = io.StringIO()
@@ -47,11 +57,10 @@ def main(command_line=None):
     
     url_table = pd.read_csv(args.urls, sep='\t', index_col='# accession')
 
-    for leaf_clade in tree.get_terminals():
+    for name, accession in name_to_accession.items():
         # in case we added a suffix
-        accession = leaf_clade.name.split('-')[0]
         url = url_table.at[accession, 'download URL']
-        print(f'{leaf_clade.name}\t{url}')
+        print(f'{name}\t{url}')
 
     if args.chrom_info:
         if not args.chrom_info:
@@ -59,8 +68,7 @@ def main(command_line=None):
             return 1        
         table = pd.read_csv(args.table, sep='\t', index_col='UCSC Browser main haplotype')
         with open(args.chrom_info, 'w') as chrom_file:
-            for leaf_clade in tree.get_terminals():
-                accession = leaf_clade.name.split('-')[0]
+            for name, accession in name_to_accession.items():
                 try:
                     sex_chroms = table.at[accession, 'Sex chromosomes main haploptype']
                 except:
@@ -70,7 +78,7 @@ def main(command_line=None):
                     if len(tok) in [1,2] and tok[0].isupper() and (len(tok) == 1 or tok[1].isnumeric()):
                         chrom_list.append(tok)
                 if chrom_list:
-                    chrom_file.write('{}\t{}\n'.format(leaf_clade.name, ','.join(chrom_list)))
+                    chrom_file.write('{}\t{}\n'.format(name, ','.join(chrom_list)))
                     
     
 if __name__ == '__main__':
