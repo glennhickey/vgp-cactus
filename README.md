@@ -36,7 +36,7 @@ Create the birds seqfile (used birds-v1.0 tag of this repo). Commands run in `./
 ./gen-birds-seqfile-v1.sh
 ```
 
-Create the mammals workflow script (used cactus v3.0.1)
+Create the birds workflow script (used cactus v3.0.1)
 
 ```
 cactus-prepare birds-v1.seqfile --outDir birds-v1-prep --chromInfo birds-v1.chrom-info --fastga --lastzCores 8 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti' --script --outHal birds-v1.hal > birds-v1.sh
