@@ -130,7 +130,7 @@ def main(command_line=None):
             # add a suffix from the table to make the names human readable
             if args.suffix_category:
                 suffix = table.at[leaf_clade.name, args.suffix_category]
-                suffix = suffix.replace(' ', '_')
+                suffix = suffix.replace(' ', '_').rstrip('_')
                 leaf_clade.name += '-' + suffix
         Phylo.write(tree, sys.stdout, 'newick')
     
