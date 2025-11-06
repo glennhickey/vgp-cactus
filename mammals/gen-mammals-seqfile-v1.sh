@@ -20,7 +20,7 @@ mv mammals-v1.chrom-info.new mammals-v1.chrom-info
 mv mammals-v1.seqfile.new mammals-v1.seqfile
 
 # add hg38
-${BIN}/add-genome-to-seqfile.py --seqfile mammals-v1.seqfile --target Homo_sapiens --name hg38 --url https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz --chroms X,Y --chrom-info mammals-v1.chrom-info > mammals-v1.seqfile.new
+${BIN}/add-genome-to-seqfile.py --seqfile mammals-v1.seqfile --target Homo_sapiens --name hg38 --url https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz --chroms X,Y --chrom-info mammals-v1.chrom-info > mammals-v1.seqfile.new
 mv mammals-v1.chrom-info.new mammals-v1.chrom-info
 mv mammals-v1.seqfile.new mammals-v1.seqfile
 
