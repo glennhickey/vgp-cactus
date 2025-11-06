@@ -9,8 +9,8 @@ import argparse
 
 fasta_table='https://raw.githubusercontent.com/VGP/vgp-phase1/c5252eebc52f8cddbfdf90e4e12b43a60aa638a5/URL.download.table.tsv'
 main_table='https://raw.githubusercontent.com/VGP/vgp-phase1/c5252eebc52f8cddbfdf90e4e12b43a60aa638a5/VGPPhase1-freeze-1.0.tsv'
-newick_tree='https://raw.githubusercontent.com/VGP/vgp-trees/a4313d2fe9d840d9a6f0c23f14c3c8abd058b24a/phase-1/roadies_v1.1.4.nwk'
-annotations='https://raw.githubusercontent.com/VGP/vgp-trees/a4313d2fe9d840d9a6f0c23f14c3c8abd058b24a/phase-1/annotations.tsv'
+newick_tree='https://raw.githubusercontent.com/VGP/vgp-trees/45fa9abcf6c9aa99cfa1b110b096457888e2a44a/phase-1/roadies_v1.1.16b.nwk'
+annotations='https://raw.githubusercontent.com/VGP/vgp-trees/45fa9abcf6c9aa99cfa1b110b096457888e2a44a/phase-1/annotations.tsv'
 
 def main(command_line=None):                     
     parser = argparse.ArgumentParser('Download some tables necessary to make the Cactus input')
