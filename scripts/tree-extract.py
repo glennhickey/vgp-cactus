@@ -69,7 +69,7 @@ def main(command_line=None):
         for sub_leaf in subtree.get_terminals():
             if sub_leaf.name not in selection_set:
                 assert sub_leaf.name in unselection_set
-                value = table.at[leaf_clade.name, args.category]
+                value = table.at[sub_leaf.name, args.category]
                 assert value != args.value
                 if not args.prune_excluded:
                     sys.stderr.write(f'Warning: genome {sub_leaf.name} with {args.category}={value} will be included in tree\n')

@@ -70,7 +70,7 @@ for i in Molossus_alvarezi Sciurus_carolinensis Pongo_abelii Cnephaeus_nilssonii
 
 ## Birds
 
-Create the birds seqfile (used birds-v1.0 tag of this repo). Commands run in `./birds`:
+Create the birds seqfile. Commands run in `./birds`:
 
 ```
 ./gen-birds-seqfile-v1.sh
@@ -85,6 +85,25 @@ cactus-prepare birds-v1.seqfile --outDir birds-v1-prep --chromInfo birds-v1.chro
 We don't want the outgroups, so pull them out of the final alignment
 ```
 sed -i birds-v1.sh -e 's#birds-v1-prep/Anc000.hal birds-v1-prep/Anc001.hal ##g'
+```
+
+## Rayfin-Fish
+
+Create the rayfin-fish seqfile. Commands run in `./rayfin-fish`:
+
+```
+./gen-rayfin-fish-seqfile-v1.sh
+```
+
+Create the rayfin-fish workflow script (used cactus v3.0.1)
+
+```
+cactus-prepare rayfin-fish-v1.seqfile --outDir rayfin-fish-v1-prep --chromInfo rayfin-fish-v1.chrom-info --fastga --lastzCores 8 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti' --script --outHal rayfin-fish-v1.hal > rayfin-fish-v1.sh
+```
+
+We don't want the outgroups, so pull them out of the final alignment
+```
+sed -i rayfin-fish-v1.sh -e 's#rayfin-fish-v1-prep/Anc000.hal rayfin-fish-v1-prep/Anc001.hal ##g'
 ```
 
 
