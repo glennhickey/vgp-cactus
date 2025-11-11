@@ -23,6 +23,11 @@ Create the mammals workflow script (used cactus v3.0.0)
 cactus-prepare mammals-v1.seqfile --outDir mammals-v1-prep --chromInfo mammals-v1.chrom-info --fastga --lastzCores 8 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti' --script --outHal vgp-mammals-v1.hal > mammals-v1.sh
 ```
 
+Don't put the outgroups in final tree
+```
+sed -i mammals-v1.sh -e 's#mammals-v1-prep/Anc000.hal mammals-v1-prep/Anc001.hal ##g'
+```
+
 Note: needed to make the following manual changes:
 * update to Toil `740508407ea34388f1a6f2d412964b67483ae9e8`
 * add `--skipProgress` and `--maxMemory 1Ti` to cactus commands
@@ -60,6 +65,7 @@ Make note the accessions for Hiram
 cat mammals-v1.seqfile  | grep -v Anc | sed -e 's#mammals-v1-prep/##g' -e 's/.fa.gz//g' | grep -v mm39 | grep -v hg38 > vgp-mammals-v1.accessions
 printf "mm39\thttps://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/mm39.fa.gz\n" >> vgp-mammals-v1.accessions
 printf "hg38\thttps://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz\n" >> vgp-mammals-v1.accessions
+for i in Molossus_alvarezi Sciurus_carolinensis Pongo_abelii Cnephaeus_nilssonii; do sed -i vgp-mammals-v1.accessions -e "s/${i}_/${i}/g"; done
 ```
 
 ## Birds
@@ -74,6 +80,11 @@ Create the birds workflow script (used cactus v3.0.1)
 
 ```
 cactus-prepare birds-v1.seqfile --outDir birds-v1-prep --chromInfo birds-v1.chrom-info --fastga --lastzCores 8 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti' --script --outHal birds-v1.hal > birds-v1.sh
+```
+
+We don't want the outgroups, so pull them out of the final alignment
+```
+sed -i birds-v1.sh -e 's#birds-v1-prep/Anc000.hal birds-v1-prep/Anc001.hal ##g'
 ```
 
 
