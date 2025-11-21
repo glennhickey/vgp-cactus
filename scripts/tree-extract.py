@@ -11,12 +11,34 @@ from collections import defaultdict
 from Bio import Phylo
 import pandas as pd
 
+SEARCH_COLUMNS = [
+    'Accession # for main haplotype',
+    'Accession #s other high-quality haplotypes',
+    'RefSeq annotation main haplotype',
+    'UCSC Browser main haplotype',
+]
+
+def find_row_by_name(table, name):
+    """Search specific columns in the table for a matching value.
+
+    Returns the first row where any of the SEARCH_COLUMNS contains the given name.
+    Raises KeyError if the name is not found.
+    """
+    for idx, row in table.iterrows():
+        for col in SEARCH_COLUMNS:
+            if col not in table.columns:
+                continue
+            cell_value = row[col]
+            if pd.notna(cell_value) and str(cell_value) == name:
+                return row
+    raise KeyError(f"Name '{name}' not found in columns {SEARCH_COLUMNS}")
+
 def main(command_line=None):                     
     parser = argparse.ArgumentParser('Add some node information to a tree from a table')
     parser.add_argument('--tree', required=True,
                         help='tree to read in newick format')
-    parser.add_argument('--table', required=True,
-                        help='table with first column being node name in the tree')
+    parser.add_argument('--table',
+                        help='Big vgp table for sex chromosome information, ex tables/VGPPhase1-freeze-1.0.tsv')
     parser.add_argument('--category', required=True,
                         help='column label in table we want to add to the node names')
     parser.add_argument('--value', required=True,
@@ -29,7 +51,9 @@ def main(command_line=None):
                         help='number of outgroups to add')
     parser.add_argument('--prune-excluded', action='store_true',
                         help='remove elements that share LCA with selection but don\'t match category/value')
-    
+    parser.add_argument('--rename-column', default='UCSC Browser main haplotype',
+                        help='replace node names with value from this column (use empty string to disable)')
+
     args = parser.parse_args(command_line)
 
     assert(args.value != args.ignore)
@@ -40,7 +64,7 @@ def main(command_line=None):
         for line in tree_file:
             tree_string += line.strip()
 
-    table = pd.read_csv(args.table, sep='\t', index_col='# accession')
+    table = pd.read_csv(args.table, sep='\t')
 
     selection = []
     unselection = []
@@ -48,7 +72,8 @@ def main(command_line=None):
     ignore = []
     
     for leaf_clade in tree.get_terminals():
-        value = table.at[leaf_clade.name, args.category]
+        row = find_row_by_name(table, leaf_clade.name)
+        value = row[args.category]
         if value == args.value:
             selection.append(leaf_clade.name)
         else:
@@ -69,7 +94,8 @@ def main(command_line=None):
         for sub_leaf in subtree.get_terminals():
             if sub_leaf.name not in selection_set:
                 assert sub_leaf.name in unselection_set
-                value = table.at[sub_leaf.name, args.category]
+                row = find_row_by_name(table, sub_leaf.name)
+                value = row[args.category]
                 assert value != args.value
                 if not args.prune_excluded:
                     sys.stderr.write(f'Warning: genome {sub_leaf.name} with {args.category}={value} will be included in tree\n')
@@ -127,9 +153,16 @@ def main(command_line=None):
         for u in unselection:
             tree.prune(u)
         for leaf_clade in tree.get_terminals():
+            row = find_row_by_name(table, leaf_clade.name)
+            # optionally rename the node using a column from the table
+            if args.rename_column:
+                new_name = row[args.rename_column]
+                if pd.notna(new_name) and str(new_name) != leaf_clade.name:
+                    sys.stderr.write(f'Warning: renaming {leaf_clade.name} to {new_name}\n')
+                    leaf_clade.name = str(new_name)
             # add a suffix from the table to make the names human readable
             if args.suffix_category:
-                suffix = table.at[leaf_clade.name, args.suffix_category]
+                suffix = row[args.suffix_category]
                 suffix = suffix.replace(' ', '_').rstrip('_')
                 leaf_clade.name += '-' + suffix
         Phylo.write(tree, sys.stdout, 'newick')

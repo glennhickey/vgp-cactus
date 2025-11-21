@@ -9,7 +9,7 @@ ${BIN}/download-tables.py --out-dir ${TAB}
 
 # extract a subtree, and add human-readable suffixes
 # we don't select amphibian outgroups (--ignore) due to concerns about their genome sizes
-${BIN}/tree-extract.py --tree ${TAB}/roadies_v1.1.16b.nwk --table ${TAB}/annotations.tsv --category Lineage --value Mammals --outgroups 2 --suffix-category ScientificName --ignore Amphibians > mammals-v1.nwk
+${BIN}/tree-extract.py --tree ${TAB}/roadies_v1.1.16b.nwk --table ${TAB}/VGPPhase1-freeze-1.0.tsv --category Lineage --value Mammals --outgroups 2 --suffix-category ScientificName --ignore Amphibians > mammals-v1.nwk
 
 # convert the subtree to a seqfile, keeping only the suffixes as names (ie dropping accessions)
 ${BIN}/tree2seqfile.py --tree mammals-v1.nwk --urls ${TAB}/URL.download.table.tsv --table ${TAB}/VGPPhase1-freeze-1.0.tsv --chrom-info mammals-v1.chrom-info --suffix-only > mammals-v1.seqfile
