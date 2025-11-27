@@ -53,6 +53,8 @@ def main(command_line=None):
                         help='remove elements that share LCA with selection but don\'t match category/value')
     parser.add_argument('--rename-column', default='UCSC Browser main haplotype',
                         help='replace node names with value from this column (use empty string to disable)')
+    parser.add_argument('--scale', type=float, default=1.0,
+                        help='scale all branch lengths by this factor (default: 1.0)')
 
     args = parser.parse_args(command_line)
 
@@ -167,6 +169,13 @@ def main(command_line=None):
                 suffix = row[args.suffix_category]
                 suffix = suffix.replace(' ', '_').rstrip('_')
                 leaf_clade.name += '-' + suffix
+
+        # Scale branch lengths if requested
+        if args.scale != 1.0:
+            for clade in tree.find_clades():
+                if clade.branch_length is not None:
+                    clade.branch_length *= args.scale
+
         Phylo.write(tree, sys.stdout, 'newick')
     
 if __name__ == '__main__':
