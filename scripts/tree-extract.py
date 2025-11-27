@@ -41,8 +41,8 @@ def main(command_line=None):
                         help='Big vgp table for sex chromosome information, ex tables/VGPPhase1-freeze-1.0.tsv')
     parser.add_argument('--category', required=True,
                         help='column label in table we want to add to the node names')
-    parser.add_argument('--value', required=True,
-                        help='select species with this value for category in the table')
+    parser.add_argument('--value', required=True, action='append',
+                        help='select species with this value for category in the table (can be specified multiple times)')
     parser.add_argument('--ignore', type=str,
                         help='ignore species with this value for category when selecting outgroups')
     parser.add_argument('--suffix-category',
@@ -56,7 +56,9 @@ def main(command_line=None):
 
     args = parser.parse_args(command_line)
 
-    assert(args.value != args.ignore)
+    # Ensure ignore value is not in the selection values
+    if args.ignore:
+        assert(args.ignore not in args.value), f"Ignore value '{args.ignore}' cannot be in selection values {args.value}"
 
     tree = Phylo.read(args.tree, "newick")
     tree_string = ''
@@ -74,7 +76,7 @@ def main(command_line=None):
     for leaf_clade in tree.get_terminals():
         row = find_row_by_name(table, leaf_clade.name)
         value = row[args.category]
-        if value == args.value:
+        if value in args.value:
             selection.append(leaf_clade.name)
         else:
             unselection.append(leaf_clade.name)
@@ -96,7 +98,7 @@ def main(command_line=None):
                 assert sub_leaf.name in unselection_set
                 row = find_row_by_name(table, sub_leaf.name)
                 value = row[args.category]
-                assert value != args.value
+                assert value not in args.value
                 if not args.prune_excluded:
                     sys.stderr.write(f'Warning: genome {sub_leaf.name} with {args.category}={value} will be included in tree\n')
                     unselection_set.remove(sub_leaf.name)
