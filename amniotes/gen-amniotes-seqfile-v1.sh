@@ -17,7 +17,7 @@ ${BIN}/tree2seqfile.py --tree amniotes-v1.nwk --urls ${TAB}/URL.download.table.t
 sed -i amniotes-v1.seqfile -e 's/GCA_009914755.4:/hs1:/g' -e 's/^GCA_009914755.4/hs1/g'
 
 # add mm39
-${BIN}/add-genome-to-seqfile.py --seqfile amniotes-v1.seqfile --target Mus_musculus --name mm39 --url https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/mm39.fa.gz --chroms X,Y --chrom-info amniotes-v1.chrom-info > amniotes-v1.seqfile.new
+${BIN}/add-genome-to-seqfile.py --seqfile amniotes-v1.seqfile --target GCA_949316315.1 --name mm39 --url https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/mm39.fa.gz --chroms X,Y --chrom-info amniotes-v1.chrom-info > amniotes-v1.seqfile.new
 mv amniotes-v1.chrom-info.new amniotes-v1.chrom-info
 mv amniotes-v1.seqfile.new amniotes-v1.seqfile
 
