@@ -30,7 +30,7 @@ def main(command_line=None):
                                
     args = parser.parse_args(command_line)
     if args.chroms is None != args.chrom_info is None:
-        sys.stderr('--chroms / --chrom-info must be used together\n')
+        sys.stderr.write('--chroms / --chrom-info must be used together\n')
         return 1
 
     # parse the seqfile
@@ -55,10 +55,10 @@ def main(command_line=None):
                     order.append(toks[0])
 
     if args.target not in fasta_map:
-        sys.stderr.write.stderr(f'target genome {args.target} not in seqfile\n')
+        sys.stderr.write(f'target genome {args.target} not in seqfile\n')
         return 1
     if len([t for t in tree.find_elements(name=args.target)]) == 0:
-        sys.stderr.write.stderr(f'target genome {args.target} not in tree\n')
+        sys.stderr.write(f'target genome {args.target} not in tree\n')
     
     # download the genomes
     fa_paths = []
