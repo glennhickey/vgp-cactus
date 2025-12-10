@@ -17,7 +17,7 @@ Create the amniotes (mammal/birds/reptile) seqfile. Commands run in `./amniotes`
 ./gen-amniotes-seqfile-v1.sh
 ```
 
-Create the amniotes workflow script (used cactus v3.1.1).  Note that the ROADIES branch lengths tend to be much shorter than we expect, so add `--branchScale 2` to double them up. 
+Create the amniotes workflow script (used cactus v3.1.2).  Note that the ROADIES branch lengths tend to be much shorter than we expect, so add `--branchScale 2` to double them up. 
 ```
 cactus-prepare amniotes-v1.seqfile --outDir amniotes-v1-prep --chromInfo amniotes-v1.chrom-info --branchScale 2 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1600Gi' --script --outHal vgp-amniotes-v1.hal --preprocessBatchSize 1000 > amniotes-v1.sh
 chmod +x amniotes-v1.sh
@@ -25,6 +25,7 @@ chmod +x amniotes-v1.sh
 
 Don't align or include the outgroups (which are under Anc002 and Anc000)
 ```
+sed -i amniotes-v1.sh -e 's/Anc000.hal.append/Anc001.hal.append/g'
 sed -i amniotes-v1.sh -e '/^cactus-halAppendSubtrees/s|amniotes-v1-prep/Anc000\.hal||g' -e '/^cactus-halAppendSubtrees/s|amniotes-v1-prep/Anc002\.hal||g'
 sed -i amniotes-v1.sh -e '/Anc000/d' -e '/Anc002/d'
 ```
