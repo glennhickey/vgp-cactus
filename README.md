@@ -28,6 +28,7 @@ Don't align or include the outgroups (which are under Anc002 and Anc000)
 sed -i amniotes-v1.sh -e 's/Anc000.hal.append/Anc001.hal.append/g'
 sed -i amniotes-v1.sh -e '/^cactus-halAppendSubtrees/s|amniotes-v1-prep/Anc000\.hal||g' -e '/^cactus-halAppendSubtrees/s|amniotes-v1-prep/Anc002\.hal||g'
 sed -i amniotes-v1.sh -e '/Anc000/d' -e '/Anc002/d'
+sed -i amniotes-v1.sh -e '/^pids=()$/{N;s/\npids+=(\$!)$//}'
 ```
 
 Run the workflow
