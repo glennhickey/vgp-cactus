@@ -76,15 +76,18 @@ Create the rayfin-fish seqfile. Commands run in `./rayfin-fish`:
 ./gen-rayfin-fish-seqfile-v1.sh
 ```
 
-Create the rayfin-fish workflow script (used cactus v3.0.1)
+Create the rayfin-fish workflow script (used cactus v3.1.2). We scale branches by 4 (twice as much as amniotes) because in addition to having shorter-than-expected branches, the fish are so difficult to align.  
 
 ```
-cactus-prepare rayfin-fish-v1.seqfile --outDir rayfin-fish-v1-prep --chromInfo rayfin-fish-v1.chrom-info --fastga --lastzCores 8 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti' --script --outHal rayfin-fish-v1.hal > rayfin-fish-v1.sh
+cactus-prepare rayfin-fish-v1.seqfile --outDir rayfin-fish-v1-prep --chromInfo rayfin-fish-v1.chrom-info --branchScale 4 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1600Gi' --script --outHal rayfin-fish-v1.hal > rayfin-fish-v1.sh
 ```
 
-We don't want the outgroups, so pull them out of the final alignment
+Don't align or include the outgroups (which are under Anc000 and Anc001)
 ```
-sed -i rayfin-fish-v1.sh -e 's#rayfin-fish-v1-prep/Anc000.hal rayfin-fish-v1-prep/Anc001.hal ##g'
+sed -i rayfin-fish-v1.sh -e 's/Anc000.hal.append/Anc002.hal.append/g'
+sed -i rayfin-fish-v1.sh -e '/^cactus-halAppendSubtrees/s|rayfin-fish-v1-prep/Anc000\.hal||g' -e '/^cactus-halAppendSubtrees/s|rayfin-fish-v1-prep/Anc001\.hal||g'
+sed -i rayfin-fish-v1.sh -e '/Anc000/d' -e '/Anc001/d'
+sed -i rayfin-fish-v1.sh -e '/^pids=()$/{N;s/\npids+=(\$!)$//}'
 ```
 
 Rename the Ancestors in perparation of future merge.
