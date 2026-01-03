@@ -9,7 +9,7 @@ ${BIN}/download-tables.py --out-dir ${TAB}
 
 # extract a subtree, and add human-readable suffixes
 # we don't select amphibian outgroups (--ignore) due to concerns about their genome sizes
-${BIN}/tree-extract.py --tree ${TAB}/roadies_v1.1.16b.nwk --table ${TAB}/VGPPhase1-freeze-1.0.tsv --category Superorder --value "Actinopterygii (Ray-finned Fishes)" --outgroups 2 > rayfin-fish-v1.nwk
+${BIN}/tree-extract.py --tree ${TAB}/roadies_v1.1.16b.nwk --table ${TAB}/VGPPhase1-freeze-1.0.tsv --category Superorder --value "Actinopterygii (Ray-finned Fishes)" --outgroups 2 --write-accession-table rayfin-fish-v1-scinames.tsv > rayfin-fish-v1.nwk
 
 # convert the subtree to a seqfile
 ${BIN}/tree2seqfile.py --tree rayfin-fish-v1.nwk --urls ${TAB}/URL.download.table.tsv --table ${TAB}/VGPPhase1-freeze-1.0.tsv --chrom-info rayfin-fish-v1.chrom-info --suffix-only > rayfin-fish-v1.seqfile

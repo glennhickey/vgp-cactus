@@ -55,6 +55,8 @@ def main(command_line=None):
                         help='replace node names with value from this column (use empty string to disable)')
     parser.add_argument('--scale', type=float, default=1.0,
                         help='scale all branch lengths by this factor (default: 1.0)')
+    parser.add_argument('--write-accession-table', type=str,
+                        help='write a 2-column TSV file mapping accessions to scientific names (excludes outgroups)')
 
     args = parser.parse_args(command_line)
 
@@ -151,6 +153,24 @@ def main(command_line=None):
 
         for og in og_selection:
             unselection.remove(og)
+
+    # Write accession table if requested (before pruning, excludes outgroups)
+    if args.write_accession_table:
+        with open(args.write_accession_table, 'w') as f:
+            for leaf_name in selection:
+                row = find_row_by_name(table, leaf_name)
+                # Get the accession (prioritize rename_column if specified, otherwise use leaf name)
+                accession = leaf_name
+                if args.rename_column and pd.notna(row[args.rename_column]):
+                    accession = str(row[args.rename_column])
+                # Get scientific name and replace spaces with underscores
+                sci_name = row['Scientific Name']
+                if pd.notna(sci_name):
+                    sci_name = str(sci_name).replace(' ', '_')
+                else:
+                    sci_name = 'UNKNOWN'
+                f.write(f"{accession}\t{sci_name}\n")
+        sys.stderr.write(f'Wrote accession table to {args.write_accession_table}\n')
 
     # prune the final tree
     if len(selection):

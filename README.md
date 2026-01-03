@@ -79,7 +79,7 @@ Create the rayfin-fish seqfile. Commands run in `./rayfin-fish`:
 Create the rayfin-fish workflow script (used cactus v3.1.2). We scale branches by 4 (twice as much as amniotes) because in addition to having shorter-than-expected branches, the fish are so difficult to align.  
 
 ```
-cactus-prepare rayfin-fish-v1.seqfile --outDir rayfin-fish-v1-prep --chromInfo rayfin-fish-v1.chrom-info --branchScale 4 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1600Gi' --script --outHal rayfin-fish-v1.hal > rayfin-fish-v1.sh
+cactus-prepare rayfin-fish-v1.seqfile --outDir rayfin-fish-v1-prep --chromInfo rayfin-fish-v1.chrom-info --branchScale 4 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1600Gi' --script --outHal rayfin-fish-v1.hal  --preprocessBatchSize 1000 > rayfin-fish-v1.sh
 ```
 
 Don't align or include the outgroups (which are under Anc000 and Anc001)
@@ -96,10 +96,15 @@ for i in `seq 2 157`; do printf "Anc%03d\tRayfinAnc%03d\n" $i $((i-2)); done >> 
 halRenameGenomes vgp-rayfin-v1.hal rayfin-rename.tsv
 ```
 
-Export the TAFs with
+Export the MAFs with
 
 ```
-cactus-hal2maf jobstore/js-maf-zebrafish vgp-rayfin-fish-v1.hal vgp-rayfin-fish-v1-zebrafish.taf.gz --refGenome Danio_rerio --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-fish-v1-zebrafish.taf.gz.log & 
+cactus-hal2maf jobstore/js-maf-zebrafish vgp-rayfin-v1.hal vgp-rayfin-v1-zebrafish.maf.gz --refGenome GCA_944039275.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-v1-zebrafish.maf.gz.log
+
+cactus-hal2maf jobstore/js-maf-fugu vgp-rayfin-v1.hal vgp-rayfin-v1-fugu.maf.gz --refGenome GCF_901000725.2 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-v1-fugu.maf.gz.log
+
+cactus-hal2maf jobstore/js-maf-cichlid vgp-rayfin-v1.hal vgp-rayfin-v1-cichlid.maf.gz --refGenome GCA_964374335.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-v1-cichlid.maf.gz.log
 ```
+
 
 
