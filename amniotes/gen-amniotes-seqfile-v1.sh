@@ -8,7 +8,7 @@ TAB=${BASE_DIR}/tables
 ${BIN}/download-tables.py --out-dir ${TAB}
 
 # extract a subtree, leave names as accessions
-${BIN}/tree-extract.py --tree ${TAB}/roadies_v1.1.16b.nwk --table ${TAB}/VGPPhase1-freeze-1.0.tsv --category Lineage --value Mammals --value Reptiles --value Birds --outgroups 2 > amniotes-v1.nwk
+${BIN}/tree-extract.py --tree ${TAB}/roadies_v1.1.16b.nwk --table ${TAB}/VGPPhase1-freeze-1.0.tsv --category Lineage --value Mammals --value Reptiles --value Birds --outgroups 2 --write-accession-table amniotes-v1-scinames.tsv > amniotes-v1.nwk
 
 # convert the subtree to a seqfile
 ${BIN}/tree2seqfile.py --tree amniotes-v1.nwk --urls ${TAB}/URL.download.table.tsv --table ${TAB}/VGPPhase1-freeze-1.0.tsv --chrom-info amniotes-v1.chrom-info --suffix-only > amniotes-v1.seqfile
