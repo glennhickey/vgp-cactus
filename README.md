@@ -104,6 +104,20 @@ cactus-hal2maf jobstore/js-maf-zebrafish vgp-rayfin-v1.hal vgp-rayfin-v1-zebrafi
 cactus-hal2maf jobstore/js-maf-fugu vgp-rayfin-v1.hal vgp-rayfin-v1-fugu.maf.gz --refGenome GCF_901000725.2 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-v1-fugu.maf.gz.log
 
 cactus-hal2maf jobstore/js-maf-cichlid vgp-rayfin-v1.hal vgp-rayfin-v1-cichlid.maf.gz --refGenome GCA_964374335.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-v1-cichlid.maf.gz.log
+
+cactus-hal2maf jobstore/js-maf-spotted_gar vgp-rayfin-fish-v1.hal vgp-rayfin-v1-spotted_gar.maf.gz --refGenome GCF_040954835.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --logFile rayfin-fish-v1-prep/logs/vgp-rayfin-v1-spotted_gar.maf.gz.log
+```
+
+And do the chains.  Note: using `sbatch` and `--symlinkImports=False` to make sure that only one copy of the hal is ever made.
+```
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=96 --job-name=chains-zebrafish --wrap="cactus-hal2chains /data/tmp/js-chain-zebrafish1 vgp-rayfin-fish-v1.hal vgp-rayfin-v1-zebrafish-chains --targetGenomes GCA_944039275.1 --bigChain --retryCount 5 --maxCores 96 --maxMemory 1Ti --symlinkImports=False" --error rayfin-fish-v1-prep/logs/vgp-rayfin-v1-zebrafish-chains.log
+
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=96 --job-name=chains-fugu --wrap="cactus-hal2chains /data/tmp/js-chain-fugu vgp-rayfin-fish-v1.hal vgp-rayfin-v1-fugu-chains --targetGenomes GCF_901000725.2 --bigChain --retryCount 5 --maxCores 96 --maxMemory 1Ti --symlinkImports=False" --error rayfin-fish-v1-prep/logs/vgp-rayfin-v1-fugu-chains.log
+
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=96 --job-name=chains-cichlid --wrap="cactus-hal2chains /data/tmp/js-chain-cichlid vgp-rayfin-fish-v1.hal vgp-rayfin-v1-cichlid-chains --targetGenomes GCA_964374335.1 --bigChain --retryCount 5 --maxCores 96 --maxMemory 1Ti --symlinkImports=False" --error rayfin-fish-v1-prep/logs/vgp-rayfin-v1-cichlid-chains.log
+
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=96 --job-name=chains-spotted_gar --wrap="cactus-hal2chains /data/tmp/js-chain-spotted_gar vgp-rayfin-fish-v1.hal vgp-rayfin-v1-spotted_gar-chains --targetGenomes GCF_040954835.1 --bigChain --retryCount 5 --maxCores 96 --maxMemory 1Ti --symlinkImports=False" --error rayfin-fish-v1-prep/logs/vgp-rayfin-v1-spotted_gar-chains.log
+
 ```
 
 
