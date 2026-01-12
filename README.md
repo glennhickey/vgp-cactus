@@ -53,7 +53,7 @@ Export the MAFs with
 ```
 cactus-hal2maf jobstore/js-maf-hg38 vgp-amniotes-v1.hal vgp-amniotes-v1-hg38.maf.gz --refGenome hg38 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile amniotes-v1-prep/logs/vgp-amniotes-v1-hg38.maf.gz.log & 
 cactus-hal2maf jobstore/js-maf-mm39 vgp-amniotes-v1.hal vgp-amniotes-v1-mm39.maf.gz --refGenome mm39 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile amniotes-v1-prep/logs/vgp-amniotes-v1-mm39.maf.gz.log &
-cactus-hal2maf jobstore/js-maf-hs1 vgp-amniotes-v1.hal vgp-amniotes-v1-hs1.maf.gz --refGenome hs1 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile amniotes-v1-prep/logs/vgp-amniotes-v1-hs1.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-hs1 vgp-amniotes-v1.hal vgp-amniotes-v1-hs1.maf.gz --refGenome GCA_009914755.4 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile amniotes-v1-prep/logs/vgp-amniotes-v1-hs1.maf.gz.log &
 cactus-hal2maf jobstore/js-maf-chicken vgp-amniotes-v1.hal vgp-amniotes-v1-chicken.maf.gz --refGenome GCF_016700215.2 --outType norm single --index --coverage --coverageSexChroms NC_059535.1 NC_059536.1 --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile amniotes-v1-prep/logs/vgp-amniotes-v1-chicken.maf.gz.log &
 
 wait
@@ -61,10 +61,11 @@ wait
 
 And the chains with (note: these have to be submitted via slurm!)
 ```
-cactus-hal2chains jobstore/js-chain-hs1 vgp-mammals-v1.hal vgp-mammals-v1-chains-hs1 --targetGenomes hs1 --bigChain --retryCount 5 --maxMemory 1Ti --logFile mammals-v1-prep/logs/vgp-mammals-v1-hs1.chains.log
-cactus-hal2chains jobstore/js-chain-hg38 vgp-mammals-v1.hal vgp-mammals-v1-chains-hg38 --targetGenomes hg38 --bigChain --retryCount 5 --maxMemory 1Ti --logFile mammals-v1-prep/logs/vgp-mammals-v1-hg38.chains.log
-cactus-hal2chains jobstore/js-chain-mm39 vgp-mammals-v1.hal vgp-mammals-v1-chains-mm39 --targetGenomes mm39 --bigChain --retryCount 5 --maxMemory 1Ti --logFile mammals-v1-prep/logs/vgp-mammals-v1-mm39.chains.log
-cactus-hal2chains jobstore/js-chain-chicken vgp-mammals-v1.hal vgp-mammals-v1-chains-chicken --targetGenomes GCF_016700215.2 --bigChain --retryCount 5 --maxMemory 1Ti --logFile mammals-v1-prep/logs/vgp-mammals-v1-chicken.chains.log 
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=160 --job-name=chains-hg38 --wrap="cactus-hal2chains /data/tmp/js-chain-hg381 vgp-amniotes-fish-v1.hal vgp-amniotes-v1-hg38-chains --targetGenomes hg38 --bigChain --retryCount 5 --maxCores 160 --maxMemory 1Ti --symlinkImports=False" --error amniotes-fish-v1-prep/logs/vgp-amniotes-v1-hg38-chains.log
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=160 --job-name=chains-mm39 --wrap="cactus-hal2chains /data/tmp/js-chain-mm391 vgp-amniotes-fish-v1.hal vgp-amniotes-v1-mm39-chains --targetGenomes mm39 --bigChain --retryCount 5 --maxCores 160 --maxMemory 1Ti --symlinkImports=False" --error amniotes-fish-v1-prep/logs/vgp-amniotes-v1-mm39-chains.log
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=160 --job-name=chains-hs1 --wrap="cactus-hal2chains /data/tmp/js-chain-hs11 vgp-amniotes-fish-v1.hal vgp-amniotes-v1-hs1-chains --targetGenomes GCA_009914755.4 --bigChain --retryCount 5 --maxCores 160 --maxMemory 1Ti --symlinkImports=False" --error amniotes-fish-v1-prep/logs/vgp-amniotes-v1-hs1-chains.log
+sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=160 --job-name=chains-chicken --wrap="cactus-hal2chains /data/tmp/js-chain-chicken1 vgp-amniotes-fish-v1.hal vgp-amniotes-v1-chicken-chains --targetGenomes GCF_016700215.2 --bigChain --retryCount 5 --maxCores 160 --maxMemory 1Ti --symlinkImports=False" --error amniotes-fish-v1-prep/logs/vgp-amniotes-v1-chicken-chains.log
+
 ```
 
 
