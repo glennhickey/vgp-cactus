@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Use a table to extract a subtree
+Use a table to extract a subtree, or collapse a subtree to a single node.
 """
 
 import os, sys
@@ -17,6 +17,13 @@ SEARCH_COLUMNS = [
     'RefSeq annotation main haplotype',
     'UCSC Browser main haplotype',
 ]
+
+def parse_genome_size(size_str):
+    """Parse genome size from table, handling commas and empty values."""
+    if pd.isna(size_str) or str(size_str).strip() == '':
+        return None
+    # Remove commas and convert to int
+    return int(str(size_str).replace(',', ''))
 
 def find_row_by_name(table, name):
     """Search specific columns in the table for a matching value.
@@ -39,9 +46,9 @@ def main(command_line=None):
                         help='tree to read in newick format')
     parser.add_argument('--table',
                         help='Big vgp table for sex chromosome information, ex tables/VGPPhase1-freeze-1.0.tsv')
-    parser.add_argument('--category', required=True,
+    parser.add_argument('--category',
                         help='column label in table we want to add to the node names')
-    parser.add_argument('--value', required=True, action='append',
+    parser.add_argument('--value', action='append',
                         help='select species with this value for category in the table (can be specified multiple times)')
     parser.add_argument('--ignore', type=str,
                         help='ignore species with this value for category when selecting outgroups')
@@ -57,11 +64,25 @@ def main(command_line=None):
                         help='scale all branch lengths by this factor (default: 1.0)')
     parser.add_argument('--write-accession-table', type=str,
                         help='write a 2-column TSV file mapping accessions to scientific names (excludes outgroups)')
+    parser.add_argument('--collapse-to', type=str,
+                        help='instead of extracting the subtree, keep everything else and replace the subtree with a single node of this name')
+    parser.add_argument('--max-genome-size', type=float,
+                        help='exclude genomes larger than this size (in bp, supports scientific notation e.g. 4e9)')
+    parser.add_argument('--exclude', action='append',
+                        help='exclude this accession from the selection (can be specified multiple times)')
 
     args = parser.parse_args(command_line)
 
+    # Validate arguments: need at least one selection method
+    if not args.max_genome_size and (not args.category or not args.value):
+        parser.error('Either --max-genome-size or both --category and --value must be specified')
+    if args.category and not args.value:
+        parser.error('--value is required when --category is specified')
+    if args.value and not args.category:
+        parser.error('--category is required when --value is specified')
+
     # Ensure ignore value is not in the selection values
-    if args.ignore:
+    if args.ignore and args.value:
         assert(args.ignore not in args.value), f"Ignore value '{args.ignore}' cannot be in selection values {args.value}"
 
     tree = Phylo.read(args.tree, "newick")
@@ -76,16 +97,51 @@ def main(command_line=None):
     unselection = []
     pruned_ingroups = []
     ignore = []
-    
+    size_excluded = []
+    explicitly_excluded = []
+
+    # Build set of excluded accessions for fast lookup
+    exclude_set = set(args.exclude) if args.exclude else set()
+
     for leaf_clade in tree.get_terminals():
         row = find_row_by_name(table, leaf_clade.name)
-        value = row[args.category]
-        if value in args.value:
-            selection.append(leaf_clade.name)
-        else:
+
+        # Check if explicitly excluded by accession
+        if leaf_clade.name in exclude_set:
+            genome_name = row.get('English Name', '')
+            if genome_name:
+                sys.stderr.write(f'Excluded: {genome_name} ({leaf_clade.name})\n')
+            else:
+                sys.stderr.write(f'Excluded: {leaf_clade.name}\n')
+            explicitly_excluded.append(leaf_clade.name)
             unselection.append(leaf_clade.name)
-        if args.ignore and args.ignore == value:
-            ignore.append(leaf_clade.name)
+            continue
+
+        # Check genome size if filtering is enabled
+        if args.max_genome_size:
+            genome_size = parse_genome_size(row.get('Assembly Size'))
+            if genome_size and genome_size > args.max_genome_size:
+                genome_name = row.get('English Name', '')
+                if genome_name:
+                    sys.stderr.write(f'Size-excluded: {genome_name} ({leaf_clade.name}): {genome_size:,} bp (>{args.max_genome_size:,.0f} bp)\n')
+                else:
+                    sys.stderr.write(f'Size-excluded: {leaf_clade.name}: {genome_size:,} bp (>{args.max_genome_size:,.0f} bp)\n')
+                size_excluded.append(leaf_clade.name)
+                unselection.append(leaf_clade.name)
+                continue
+
+        # Category/value filtering (if specified)
+        if args.category and args.value:
+            value = row[args.category]
+            if value in args.value:
+                selection.append(leaf_clade.name)
+            else:
+                unselection.append(leaf_clade.name)
+            if args.ignore and args.ignore == value:
+                ignore.append(leaf_clade.name)
+        else:
+            # No category filter - select all genomes that passed size filter
+            selection.append(leaf_clade.name)
 
     anc = tree.common_ancestor(selection)
 
@@ -100,16 +156,31 @@ def main(command_line=None):
         for sub_leaf in subtree.get_terminals():
             if sub_leaf.name not in selection_set:
                 assert sub_leaf.name in unselection_set
-                row = find_row_by_name(table, sub_leaf.name)
-                value = row[args.category]
-                assert value not in args.value
-                if not args.prune_excluded:
-                    sys.stderr.write(f'Warning: genome {sub_leaf.name} with {args.category}={value} will be included in tree\n')
-                    unselection_set.remove(sub_leaf.name)
-                    selection_set.add(sub_leaf.name)
-                else:
-                    sys.stderr.write(f'Warning: genome {sub_leaf.name} with {args.category}={value} will be pruned from tree\n')
+                # Determine reason for exclusion
+                if sub_leaf.name in size_excluded or sub_leaf.name in explicitly_excluded:
+                    # Size-excluded and explicitly excluded genomes are always pruned (already logged above)
                     pruned_ingroups.append(sub_leaf.name)
+                elif args.category:
+                    row = find_row_by_name(table, sub_leaf.name)
+                    value = row[args.category]
+                    assert value not in args.value
+                    reason = f'{args.category}={value}'
+                    if not args.prune_excluded:
+                        sys.stderr.write(f'Warning: genome {sub_leaf.name} ({reason}) will be included in tree\n')
+                        unselection_set.remove(sub_leaf.name)
+                        selection_set.add(sub_leaf.name)
+                    else:
+                        sys.stderr.write(f'Warning: genome {sub_leaf.name} ({reason}) will be pruned from tree\n')
+                        pruned_ingroups.append(sub_leaf.name)
+                else:
+                    # Unknown reason - follow prune_excluded setting
+                    if not args.prune_excluded:
+                        sys.stderr.write(f'Warning: genome {sub_leaf.name} (unknown reason) will be included in tree\n')
+                        unselection_set.remove(sub_leaf.name)
+                        selection_set.add(sub_leaf.name)
+                    else:
+                        sys.stderr.write(f'Warning: genome {sub_leaf.name} (unknown reason) will be pruned from tree\n')
+                        pruned_ingroups.append(sub_leaf.name)
         selection = list(selection_set)
         unselection = list(unselection_set)
                         
@@ -119,6 +190,8 @@ def main(command_line=None):
         # this is slow, and only used for multiple outgroups
         og_candidates = set(unselection) - set(pruned_ingroups)
         og_candidates -= set(ignore)
+        og_candidates -= set(size_excluded)
+        og_candidates -= set(explicitly_excluded)
         if args.outgroups > 1 and len(og_candidates) > 100:
             sys.stderr.write(f'Computing brute force distance matrix (N={len(og_candidates)}), this may take a while ....\n')
         matrix = defaultdict(dict)
@@ -174,17 +247,43 @@ def main(command_line=None):
 
     # prune the final tree
     if len(selection):
-        for u in unselection:
-            tree.prune(u)
+        collapsed_name = None
+        if args.collapse_to:
+            # Replace the selected subtree with a single node, keep everything else
+            # Find the parent of the common ancestor
+            parent = None
+            for clade in tree.find_clades():
+                if anc in clade.clades:
+                    parent = clade
+                    break
+
+            if parent is None:
+                # anc is the root - selection covers the entire tree
+                sys.stderr.write(f'Error: selection covers entire tree, cannot collapse to single node\n')
+                sys.exit(1)
+
+            # Create new terminal clade with the given name, preserving branch length
+            new_leaf = Phylo.BaseTree.Clade(name=args.collapse_to, branch_length=anc.branch_length)
+            collapsed_name = args.collapse_to
+
+            # Replace anc with new_leaf in parent's clades
+            idx = parent.clades.index(anc)
+            parent.clades[idx] = new_leaf
+        else:
+            # Original behavior: extract the subtree
+            for u in unselection:
+                tree.prune(u)
+
+        # Process leaves (rename, add suffix)
         for leaf_clade in tree.get_terminals():
+            if leaf_clade.name == collapsed_name:
+                continue  # Skip the collapsed node (not in table)
             row = find_row_by_name(table, leaf_clade.name)
-            # optionally rename the node using a column from the table
             if args.rename_column:
                 new_name = row[args.rename_column]
                 if pd.notna(new_name) and str(new_name) != leaf_clade.name:
                     sys.stderr.write(f'Warning: renaming {leaf_clade.name} to {new_name}\n')
                     leaf_clade.name = str(new_name)
-            # add a suffix from the table to make the names human readable
             if args.suffix_category:
                 suffix = row[args.suffix_category]
                 suffix = suffix.replace(' ', '_').rstrip('_')

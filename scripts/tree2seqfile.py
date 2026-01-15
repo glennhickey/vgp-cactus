@@ -3,10 +3,11 @@
 Make a Cactus Seqfile from a Newick (sub)tree using the vgp data tables
 
 Also make the --chromInfo cactus input using the big vgp table
+
+Note: For labeling ancestral nodes, use the separate label-tree.py script.
 """
 
-import os, sys
-import subprocess
+import sys
 import argparse
 from Bio import Phylo
 import pandas as pd
@@ -25,19 +26,22 @@ def main(command_line=None):
                         help='Write sex chrom info to this file (requires --table)')
     parser.add_argument('--suffix-only', action='store_true',
                         help='Only keep suffix added by tree-extract.py --suffix-category')
-                           
+
     args = parser.parse_args(command_line)
 
     tree = Phylo.read(args.tree, "newick")
 
-    # strip out the confidence values which cactus will interpret as ancestor names
+    # strip out confidence values and numeric ancestor names (but preserve labels from label-tree.py)
     for anc_clade in tree.get_nonterminals():
         anc_clade.confidence = None
+        # Only clear numeric names (e.g., "100", "0.95") - preserve text labels
+        if anc_clade.name and anc_clade.name.replace('.', '').replace('-', '').isdigit():
+            anc_clade.name = None
         if len(anc_clade) != 2:
             sys.stderr.write('Error: input tree is not binary!\n')
             return 1
 
-    # strip accesssions but remember them
+    # strip accessions but remember them
     name_to_accession = {}
     for leaf_clade in tree.get_terminals():
         accession = leaf_clade.name.split('-')[0]
@@ -49,10 +53,10 @@ def main(command_line=None):
     tree_stream = io.StringIO()
     Phylo.write(tree, tree_stream, 'newick')
     tree_stream.seek(0)
-    tree_string = tree_stream.read().strip()    
+    tree_string = tree_stream.read().strip()
     m = re.search(f':[0-9,.]*;', tree_string)
     tree_string = tree_string.replace(m.group(), ';')
-    print(tree_string)    
+    print(tree_string)
     print('')
     
     url_table = pd.read_csv(args.urls, sep='\t', index_col='# accession')
