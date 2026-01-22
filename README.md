@@ -9,7 +9,36 @@ virtualenv -p python3 venv-vgp
 pip install -U pandas biopython
 ```
 
-## Amniotes
+## 577-way
+
+This an alignment of the `v1.1.16b` ROADIES tree plus `hg38` and `mm39` minus genomes that Cactus can't run in under 2TB:
+
+```
+common newt (GCA_964263255.1): 24,226,223,864 bp
+palmate newt (GCA_964261635.1): 23,170,028,842 bp
+warty newt (GCA_964204655.1): 22,324,616,549 bp
+Iberian ribbed newt (GCA_026652325.1): 20,300,798,037 bp
+axolotl (GCF_040938575.1): 29,117,848,270 bp
+West African lungfish (GCA_040939525.1): 40,524,157,013 bp
+```
+
+and correcting the band-tailed pigeon assembly from `GCA_036971685.2` to `GCF_037038585.1`.
+
+Create the seqfile. All commands run in `./577way`.
+
+```
+./gen-577way-seqfile-v1.sh
+```
+
+Create the cactus workflow script (used cactus v3.1.3).  Note that the ROADIES branch lengths tend to be much shorter than we expect, so add `--branchScale 2` to double them up. 
+```
+cactus-prepare vgp-577way-v1.seqfile --outDir vgp-577way-v1-prep --chromInfo vgp-577way-v1.chrom-info --branchScale 2 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 2000Gi' --script --outHal vgp-577way-v1.hal --preprocessBatchSize 1000 > vgp-577way-v1.sh
+chmod +x vgp-577way-v1.sh
+```
+
+## Older alignments
+
+### Amniotes
 
 Create the amniotes (mammal/birds/reptile) seqfile. Commands run in `./amniotes`. Note that the branches in the ROADIES tree seem short, so this script scales them by 2 to help cactus select appropriate lastz parameters. 
 
@@ -69,7 +98,7 @@ sbatch --partition=long --time=5-00:00:00 --mem=1T --cpus-per-task=160 --job-nam
 ```
 
 
-## Rayfin-Fish
+### Rayfin-Fish
 
 Create the rayfin-fish seqfile. Commands run in `./rayfin-fish`:
 
