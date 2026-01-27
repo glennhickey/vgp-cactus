@@ -64,14 +64,44 @@ def parse_hierarchical_value(val):
         return [base, sub]
     return [val]
 
-def get_shared_label(clade, columns, accession_map, accession_lookup, combined_labels=None):
+def compute_global_value_counts(tree, columns, accession_map, accession_lookup):
+    """Compute the total count of leaves in the tree for each (column, level, value).
+
+    Returns:
+        dict mapping (col, level, value) -> count of leaves with that value
+    """
+    global_counts = {}
+    for leaf in tree.get_terminals():
+        accession = accession_map.get(leaf.name)
+        if not accession:
+            continue
+        row = accession_lookup.get(accession)
+        if row is None:
+            continue
+        for col in columns:
+            if col in row.index:
+                parts = parse_hierarchical_value(row[col])
+                if len(parts) >= 1:
+                    key = (col, 0, parts[0])
+                    global_counts[key] = global_counts.get(key, 0) + 1
+                if len(parts) >= 2:
+                    key = (col, 1, parts[1])
+                    global_counts[key] = global_counts.get(key, 0) + 1
+    return global_counts
+
+
+def get_shared_label(clade, columns, accession_map, accession_lookup, global_value_counts, combined_labels=None):
     """Find the most specific shared taxonomic label for all leaves under this clade.
+
+    A label is only returned if this clade contains ALL leaves in the tree with that
+    taxonomic value (i.e., this is the true clade root for that category).
 
     Args:
         clade: the clade to find a label for
         columns: list of column names to check
         accession_map: dict mapping leaf names to accessions
         accession_lookup: dict mapping accessions to table rows
+        global_value_counts: dict mapping (col, level, value) -> total count in tree
         combined_labels: list of (label, column, value_set) tuples for combined categories
     """
     leaves = clade.get_terminals()
@@ -81,6 +111,8 @@ def get_shared_label(clade, columns, accession_map, accession_lookup, combined_l
     # level 0 = base (e.g., "Rodentia"), level 1 = sub (e.g., "Erethizontidae")
     column_values = {}
     column_counts = {}  # Track how many leaves contributed to each level
+    # Also track per-value counts: {(col, level, value): count}
+    value_counts = {}
     for col in columns:
         column_values[(col, 0)] = set()  # base level
         column_values[(col, 1)] = set()  # sub level (parenthesized)
@@ -102,11 +134,16 @@ def get_shared_label(clade, columns, accession_map, accession_lookup, combined_l
                 if len(parts) >= 1:
                     column_values[(col, 0)].add(parts[0])
                     column_counts[(col, 0)] += 1
+                    key = (col, 0, parts[0])
+                    value_counts[key] = value_counts.get(key, 0) + 1
                 if len(parts) >= 2:
                     column_values[(col, 1)].add(parts[1])
                     column_counts[(col, 1)] += 1
+                    key = (col, 1, parts[1])
+                    value_counts[key] = value_counts.get(key, 0) + 1
 
     # Find the most specific level where all leaves share the same value
+    # AND this clade contains ALL leaves in the tree with that value
     # Check columns in reverse order (most specific first), and within each column
     # check sub-level before base-level
     # Only consider a level if ALL leaves contributed to it
@@ -114,11 +151,19 @@ def get_shared_label(clade, columns, accession_map, accession_lookup, combined_l
         # Check sub-level first (more specific)
         values = column_values[(col, 1)]
         if len(values) == 1 and column_counts[(col, 1)] == total_leaves:
-            return sanitize_label(values.pop())
+            value = list(values)[0]
+            key = (col, 1, value)
+            # Only use this label if we have ALL leaves with this value in the tree
+            if value_counts.get(key, 0) == global_value_counts.get(key, 0):
+                return sanitize_label(value)
         # Check base-level
         values = column_values[(col, 0)]
         if len(values) == 1 and column_counts[(col, 0)] == total_leaves:
-            return sanitize_label(values.pop())
+            value = list(values)[0]
+            key = (col, 0, value)
+            # Only use this label if we have ALL leaves with this value in the tree
+            if value_counts.get(key, 0) == global_value_counts.get(key, 0):
+                return sanitize_label(value)
 
     # If no single shared value, check combined labels
     # Combined labels are sorted by size (smallest/most specific first)
@@ -130,9 +175,15 @@ def get_shared_label(clade, columns, accession_map, accession_lookup, combined_l
             leaf_values = column_values.get((col, 0), set())
             if leaf_values and column_counts[(col, 0)] == total_leaves:
                 if leaf_values.issubset(value_set) and len(leaf_values) > 1:
-                    # All values are in the combined set, and there's more than one value
-                    # (if there's only one value, the single-value check above would have caught it)
-                    return label
+                    # Check that we have ALL leaves for each value in our set
+                    has_all = True
+                    for value in leaf_values:
+                        key = (col, 0, value)
+                        if value_counts.get(key, 0) != global_value_counts.get(key, 0):
+                            has_all = False
+                            break
+                    if has_all:
+                        return label
 
     return None
 
@@ -149,6 +200,9 @@ def label_tree(tree, table, columns, accession_map, fallback_label=None, combine
     """
     accession_lookup = build_accession_lookup(table)
 
+    # Pre-compute global value counts (how many leaves in tree have each value)
+    global_value_counts = compute_global_value_counts(tree, columns, accession_map, accession_lookup)
+
     # Clear existing ancestor names
     for anc_clade in tree.get_nonterminals():
         anc_clade.confidence = None
@@ -157,7 +211,7 @@ def label_tree(tree, table, columns, accession_map, fallback_label=None, combine
     # First pass: compute taxonomic labels for each node (bottom-up)
     node_labels = {}  # clade -> taxonomic label (or None)
     for anc_clade in tree.get_nonterminals(order='postorder'):
-        label = get_shared_label(anc_clade, columns, accession_map, accession_lookup, combined_labels)
+        label = get_shared_label(anc_clade, columns, accession_map, accession_lookup, global_value_counts, combined_labels)
         node_labels[anc_clade] = label
 
     # Second pass: count how many nodes will use each label (top-down)
@@ -227,7 +281,7 @@ def label_tree(tree, table, columns, accession_map, fallback_label=None, combine
         def assign_fallback_names(clade):
             nonlocal fallback_counter
             if not clade.is_terminal() and not clade.name:
-                clade.name = f"{fallback_label}Anc{fallback_counter:0{fallback_width}d}"
+                clade.name = f"{fallback_label}{fallback_counter:0{fallback_width}d}"
                 sys.stderr.write(f'Fallback labeling ancestor: {clade.name} ({len(clade.get_terminals())} leaves)\n')
                 fallback_counter += 1
             for child in clade.clades:
