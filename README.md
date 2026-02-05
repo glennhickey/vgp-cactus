@@ -36,6 +36,8 @@ cactus-prepare vgp-577way-v1.seqfile --outDir vgp-577way-v1-prep --chromInfo vgp
 chmod +x vgp-577way-v1.sh
 ```
 
+**Note**: I switched to `v3.1.4` and reduced `--maxMemory to 1700Gi` part way through.  These changes don't affect any logic, but make paf i/o a bit faster and help with scheduling. 
+
 ## Older alignments
 
 ### Amniotes
