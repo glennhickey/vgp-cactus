@@ -38,6 +38,23 @@ chmod +x vgp-577way-v1.sh
 
 **Note**: I switched to `v3.1.4` and reduced `--maxMemory to 1700Gi` part way through.  These changes don't affect any logic, but make paf i/o a bit faster and help with scheduling. 
 
+Export the MAFs with
+
+```
+cactus-hal2maf jobstore/js-maf-hg38 vgp-577way-v1.hal vgp-577way-v1-hg38.maf.gz --refGenome GCA_000001405.15 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hg38.maf.gz.log & 
+cactus-hal2maf jobstore/js-maf-mm39 vgp-577way-v1.hal vgp-577way-v1-mm39.maf.gz --refGenome GCA_949316315.1 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mm39.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-hs1 vgp-577way-v1.hal vgp-577way-v1-hs1.maf.gz --refGenome GCA_009914755.4 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hs1.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-chicken vgp-577way-v1.hal vgp-577way-v1-chicken.maf.gz --refGenome GCF_016700215.2 --outType norm single --index --coverage --coverageSexChroms NC_059535.1 NC_059536.1 --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-chicken.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-zebrafish vgp-577way-v1.hal vgp-577way-v1-zebrafish.maf.gz --refGenome GCA_944039275.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-zebrafish.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-spotted_gar vgp-577way-v1.hal vgp-577way-v1-spotted_gar.maf.gz --refGenome GCF_040954835.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-spotted_gar.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-catshark vgp-577way-v1.hal vgp-577way-v1-catshark.maf.gz --refGenome GCF_902713615.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-catshark.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-clawed_frog vgp-577way-v1.hal vgp-577way-v1-clawed_frog.maf.gz --refGenome GCA_038501925.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-clawed_frog.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-brown_anole vgp-577way-v1.hal vgp-577way-v1-brown_anole.maf.gz --refGenome GCF_037176765.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-brown_anole.maf.gz.log &
+wait
+```
+
+
+
 ## Older alignments
 
 ### Amniotes

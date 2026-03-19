@@ -1,0 +1,52 @@
+<pre style="white-space: pre-wrap;">
+
+577-way Progressive Cactus VGP Alignment
+========================================
+
+This alignment was made using the ROADIES v1.1.16b guide tree for Phase 1 Vertebrate Genomes Project data. I added two genomes, hg38 (GCA_000001405.15) and mm39 (GCA_000001635.9), due to their importance to the UCSC Genome Browser. I also switched the band-tailed pigeon assembly from GCA_036971685.2 to its primary assembly, GCF_037038585.1.
+
+There were 6 genomes in the tree that I excluded from the alignment because they were too large for Cactus to handle:
+
+common newt (GCA_964263255.1): 24,226,223,864 bp
+palmate newt (GCA_964261635.1): 23,170,028,842 bp
+warty newt (GCA_964204655.1): 22,324,616,549 bp
+Iberian ribbed newt (GCA_026652325.1): 20,300,798,037 bp
+axolotl (GCF_040938575.1): 29,117,848,270 bp
+West African lungfish (GCA_040939525.1): 40,524,157,013 bp
+
+Every genome in the alignment is labelled by its accession.  The ancestor names were heuristically determined from the metadata in the vgp table.
+
+The alignment was created using Cactus v3.14 on the UCSC Genomics Institute's phoenix cluster:
+
+cactus-prepare vgp-577way-v1.seqfile --outDir vgp-577way-v1-prep --chromInfo vgp-577way-v1.chrom-info --branchScale 2 --alignCores 64 --cactusOptions '--batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 2000Gi' --script --outHal vgp-577way-v1.hal --preprocessBatchSize 1000 > vgp-577way-v1.sh
+
+chmod +x vgp-577way-v1.sh
+
+./vgp-577way-v1.sh
+
+To see exactly how the input data was prepared, please see https://github.com/glennhickey/vgp-cactus
+
+NOTE: This alignment contains important improvements over the amniotes and rayfin-fish alignments found elsewhere on this bucket.  You should use it instead of them, even if you are only interested in amniotes or fish.
+
+Files
+=====
+
+vgp-577way-v1.hal - The Cactus output in HAL format (https://github.com/ComparativeGenomicsToolkit/hal).  This stores the alignment, as well as all input sequences (in their entirety) as a graph.  It is entirely reference free.
+
+vgp-577way-v1.nwk - The guide tree used, including ancestor names.  Labels are accessions.
+
+vgp-577way-v1.seqfile - The cactus input (guide tree and genome URLs).  This file stores the exact (and public) URL for each input genome.
+
+vgp-577way-v1.sh - The script that was used to generate the alignment on slurm.
+
+vgp-577way-v1-chicken.maf.gz - The alignment in MAF format (https://genome.ucsc.edu/FAQ/FAQformat.html#format5) referenced on chicken. It can contain multiple rows per genome per block, as Cactus will often align duplications. 
+
+vgp-577way-v1-chicken.maf.gz.tai - The index for that MAF file, that allows random access with taffy tools (https://github.com/ComparativeGenomicsToolkit/taffy).
+
+vgp-577way-v1-chicken.single.maf.gz - The alignment in MAF format (https://genome.ucsc.edu/FAQ/FAQformat.html#format5) referenced on chicken. It is filtered so there is at most one row per genome per block (https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/doc/progressive.md#cactus-hal2maf-options, see --outType single).
+
+vgp-577way-v1-chicken.single.maf.gz.tai - The index for above.
+
+MAF files on other references are available too, but they all follow the same naming convention as chicken.
+  
+</pre>
