@@ -69,7 +69,7 @@ cactus-hal2maf jobstore/js-maf-coastal_tailed_frog vgp-577way-v1.hal vgp-577way-
 wait
 ```
 
-PhyloP tracks (with `cactus-phast`).  We run phast for any reference where we can get a gene annotation.  For `GCF_` accessions we pull annotations from NCBI by browsing https://www.ncbi.nlm.nih.gov/datasets/genome/<ACCESSION>/ and grabbing the GFF URL from the FTP path (`https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/.../<asm>_genomic.gff.gz`) -- the `<asm>` segment varies per accession and needs to be checked by hand.  For the standard browser genomes (hg38, mm39, hs1) we use UCSC's gene tracks directly.
+PhyloP tracks (with `cactus-phast`, cactus v3.2.0).  We run phast for any reference where we can get a gene annotation.  For `GCF_` accessions we pull annotations from NCBI by browsing https://www.ncbi.nlm.nih.gov/datasets/genome/<ACCESSION>/ and grabbing the GFF URL from the FTP path (`https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/.../<asm>_genomic.gff.gz`) -- the `<asm>` segment varies per accession and needs to be checked by hand.  For the standard browser genomes (hg38, mm39, hs1) we use UCSC's gene tracks directly.
 
 For each MAF we generate two lineage-specific phyloP tracks via `--subtree`: one at a broader clade (e.g. Mammals, Birds) and one at a more local clade (e.g. Carnivora, Galloanserformes).  The picks below were chosen to be biologically meaningful without being too small; you can audit/replay them with the helper:
 
