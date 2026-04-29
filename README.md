@@ -41,8 +41,9 @@ chmod +x vgp-577way-v1.sh
 Export the MAFs with
 
 ```
-cactus-hal2maf jobstore/js-maf-hg38 vgp-577way-v1.hal vgp-577way-v1-hg38.maf.gz --refGenome GCA_000001405.15 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hg38.maf.gz.log & 
-cactus-hal2maf jobstore/js-maf-mm39 vgp-577way-v1.hal vgp-577way-v1-mm39.maf.gz --refGenome GCA_949316315.1 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mm39.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-hg38 vgp-577way-v1.hal vgp-577way-v1-hg38.maf.gz --refGenome GCA_000001405.15 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hg38.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-mm39 vgp-577way-v1.hal vgp-577way-v1-mm39.maf.gz --refGenome GCA_000001635.9 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mm39.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-mouse vgp-577way-v1.hal vgp-577way-v1-mouse.maf.gz --refGenome GCA_949316315.1 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mouse.maf.gz.log &
 cactus-hal2maf jobstore/js-maf-hs1 vgp-577way-v1.hal vgp-577way-v1-hs1.maf.gz --refGenome GCA_009914755.4 --outType norm single --index --coverage --coverageSexChroms chrX chrY --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hs1.maf.gz.log &
 cactus-hal2maf jobstore/js-maf-chicken vgp-577way-v1.hal vgp-577way-v1-chicken.maf.gz --refGenome GCF_016700215.2 --outType norm single --index --coverage --coverageSexChroms NC_059535.1 NC_059536.1 --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-chicken.maf.gz.log &
 cactus-hal2maf jobstore/js-maf-zebrafish vgp-577way-v1.hal vgp-577way-v1-zebrafish.maf.gz --refGenome GCA_944039275.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-zebrafish.maf.gz.log &
@@ -50,9 +51,72 @@ cactus-hal2maf jobstore/js-maf-spotted_gar vgp-577way-v1.hal vgp-577way-v1-spott
 cactus-hal2maf jobstore/js-maf-catshark vgp-577way-v1.hal vgp-577way-v1-catshark.maf.gz --refGenome GCF_902713615.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-catshark.maf.gz.log &
 cactus-hal2maf jobstore/js-maf-clawed_frog vgp-577way-v1.hal vgp-577way-v1-clawed_frog.maf.gz --refGenome GCA_038501925.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-clawed_frog.maf.gz.log &
 cactus-hal2maf jobstore/js-maf-brown_anole vgp-577way-v1.hal vgp-577way-v1-brown_anole.maf.gz --refGenome GCF_037176765.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-brown_anole.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-horseshoe_bat vgp-577way-v1.hal vgp-577way-v1-horseshoe_bat.maf.gz --refGenome GCF_004115265.2 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-horseshoe_bat.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-dog vgp-577way-v1.hal vgp-577way-v1-dog.maf.gz --refGenome GCF_011100685.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-dog.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-zebra_finch vgp-577way-v1.hal vgp-577way-v1-zebra_finch.maf.gz --refGenome GCA_048771995.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-zebra_finch.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-emu vgp-577way-v1.hal vgp-577way-v1-emu.maf.gz --refGenome GCF_036370855.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-emu.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-european_eel vgp-577way-v1.hal vgp-577way-v1-european_eel.maf.gz --refGenome GCF_013347855.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-european_eel.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-eastern_happy vgp-577way-v1.hal vgp-577way-v1-eastern_happy.maf.gz --refGenome GCA_964374335.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-eastern_happy.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-three_spined_stickleback vgp-577way-v1.hal vgp-577way-v1-three_spined_stickleback.maf.gz --refGenome GCA_964276395.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-three_spined_stickleback.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-green_sea_turtle vgp-577way-v1.hal vgp-577way-v1-green_sea_turtle.maf.gz --refGenome GCF_015237465.2 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-green_sea_turtle.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-gray_short_tailed_opossum vgp-577way-v1.hal vgp-577way-v1-gray_short_tailed_opossum.maf.gz --refGenome GCF_027887165.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-gray_short_tailed_opossum.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-european_river_lamprey vgp-577way-v1.hal vgp-577way-v1-european_river_lamprey.maf.gz --refGenome GCA_964198595.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-european_river_lamprey.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-tiny_cayenne_caecilian vgp-577way-v1.hal vgp-577way-v1-tiny_cayenne_caecilian.maf.gz --refGenome GCA_901765095.2 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-tiny_cayenne_caecilian.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-coelacanth vgp-577way-v1.hal vgp-577way-v1-coelacanth.maf.gz --refGenome GCF_037176945.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-coelacanth.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-mexican_tetra vgp-577way-v1.hal vgp-577way-v1-mexican_tetra.maf.gz --refGenome GCF_023375975.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mexican_tetra.maf.gz.log &
+cactus-hal2maf jobstore/js-maf-coastal_tailed_frog vgp-577way-v1.hal vgp-577way-v1-coastal_tailed_frog.maf.gz --refGenome GCA_040206685.1 --outType norm single --index --coverage  --chunkSize 100000 --batchCores 96 --batchCount 32 --noAncestors --batchParallelTaf 32 --batchSystem slurm --doubleMem true --slurmTime 100:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-coastal_tailed_frog.maf.gz.log &
+
 wait
 ```
 
+Chains
+```
+sbatch --partition=long --time=10-00:00:00 --mem=1800G --cpus-per-task=32 --job-name=chains-hg38 --wrap="cactus-hal2chains /data/tmp/js-chain-hg38 vgp-577way-v1.hal vgp-577way-v1-hg38-chains --targetGenomes GCA_000001405.15  --bigChain --retryCount 5 --maxCores 32 --maxMemory 1800Gi --symlinkImports=False" --error vgp-577way-v1-prep/logs/vgp-577way-v1-hg38-chains.log
+
+sbatch --partition=long --time=10-00:00:00 --mem=1800G --cpus-per-task=32 --job-name=chains-catshark --wrap="cactus-hal2chains /data/tmp/js-chain-catshark vgp-577way-v1.hal vgp-577way-v1-catshark-chains --targetGenomes GCF_902713615.1  --bigChain --retryCount 5 --maxCores 32 --maxMemory 1800Gi --symlinkImports=False" --error vgp-577way-v1-prep/logs/vgp-577way-v1-catshark-chains.log
+
+sbatch --partition=long --time=10-00:00:00 --mem=1800G --cpus-per-task=32 --job-name=chains-chicken --wrap="cactus-hal2chains /data/tmp/js-chain-chicken vgp-577way-v1.hal vgp-577way-v1-chicken-chains --targetGenomes GCF_016700215.2 --bigChain --retryCount 5 --maxCores 32 --maxMemory 1800Gi --symlinkImports=False" --error vgp-577way-v1-prep/logs/vgp-577way-v1-chicken-chains.log
+
+sbatch --partition=long --time=10-00:00:00 --mem=1800G --cpus-per-task=32 --job-name=chains-hg38-13way-demo --wrap="cactus-hal2chains /data/tmp/js-chain-hg38-13way-demo vgp-577way-v1.hal vgp-577way-v1-hg38-13way-demo-chains --targetGenomes GCA_000001405.15 --queryGenomes GCA_949316315.1 GCA_009914755.4 GCF_016700215.2 GCA_944039275.1 GCF_040954835.1 GCF_902713615.1 GCA_038501925.1 GCF_037176765.1 GCF_004115265.2 GCF_011100685.1 GCA_048771995.1 GCF_036370855.1 GCF_013347855.1 --bigChain --retryCount 5 --maxCores 32 --maxMemory 1800Gi --symlinkImports=False" --error vgp-577way-v1-hg38-13way-demo-chains.log
+
+```
+
+
+### Coverage Plots
+
+The MAF export commands above produce a `*.maf.gz.cov.tsv` file alongside each MAF (via `--coverage`). For every reference, four bar-chart PNGs are generated from that table using `scripts/visualize_coverage.R`. Each plot shows per-species alignment coverage (in Mbp), with bars colored by Lineage.
+
+The script depends on the `annotations.tsv` table (lineage / family / english-name lookup) which lives in the per-alignment coverage directory.
+
+Reproduce the plots for a single reference (using hs1 as example):
+
+```
+cd 577way/coverage
+Rscript ../../scripts/visualize_coverage.R vgp-577way-v1-hs1.maf.gz.cov.tsv annotations.tsv Total
+```
+
+This produces four PNGs in the working directory:
+
+- `vgp-577way-v1-hs1.maf.gz.cov.tsv_coverage_total.png` — linear-scale total alignment coverage; light bars = total aligned bases of hs1 covered by the query, dark overlay = identical matches.
+- `vgp-577way-v1-hs1.maf.gz.cov.tsv_coverage_total_log.png` — same as above with a log-scaled y-axis (long tail of distantly related species becomes visible).
+- `vgp-577way-v1-hs1.maf.gz.cov.tsv_coverage_total_1to1.png` — dark overlay now denotes 1:1 (single-copy, no duplications) coverage instead of identical matches.
+- `vgp-577way-v1-hs1.maf.gz.cov.tsv_coverage_total_1to1_log.png` — same as above with a log-scaled y-axis.
+
+To regenerate plots for every reference in the 577way coverage directory:
+
+```
+cd 577way/coverage
+for f in vgp-577way-v1-*.maf.gz.cov.tsv; do
+  [[ "$f" == *.single.* ]] && continue
+  Rscript ../../scripts/visualize_coverage.R "$f" annotations.tsv Total
+done
+```
+
+Optional 4th argument: a regex matched against the `Orders` column to restrict bars to a specific clade (when active, bars are colored by Family rather than Lineage). For example, to show only bats on the horseshoe bat reference:
+
+```
+Rscript ../../scripts/visualize_coverage.R vgp-577way-v1-horseshoe_bat.maf.gz.cov.tsv annotations.tsv Total Chiroptera
+```
 
 
 ## Older alignments
