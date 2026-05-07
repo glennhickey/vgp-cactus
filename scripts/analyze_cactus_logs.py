@@ -375,6 +375,74 @@ def load_name_map(annotations_path, extra_scinames_paths):
     return name_map
 
 
+LINEAGE_ORDER = ["Mammals", "Birds", "Reptiles", "Amphibians", "Fishes",
+                 "Invertebrates"]
+LINEAGE_COLORS = {
+    "Mammals":       "#E41A1C",
+    "Birds":         "#377EB8",
+    "Reptiles":      "#4DAF4A",
+    "Amphibians":    "#FF7F00",
+    "Fishes":        "#984EA3",
+    "Invertebrates": "#A65628",
+    "Unknown":       "#bbbbbb",
+}
+
+
+def load_lineage_map(annotations_path):
+    """Build {accession: Lineage} from annotations TSV."""
+    out = {}
+    if not annotations_path or not os.path.isfile(annotations_path):
+        return out
+    with open(annotations_path) as fh:
+        header = fh.readline().lstrip("# ").rstrip("\n").split("\t")
+        try:
+            acc_idx = header.index("accession")
+        except ValueError:
+            acc_idx = 0
+        if "Lineage" not in header:
+            return out
+        lin_idx = header.index("Lineage")
+        for line in fh:
+            cols = line.rstrip("\n").split("\t")
+            if len(cols) > max(acc_idx, lin_idx):
+                acc = cols[acc_idx]
+                lin = cols[lin_idx]
+                if acc and lin:
+                    out[acc] = lin
+    return out
+
+
+def build_lineage_map(tree_path, leaf_lineage):
+    """Return {node_name: lineage} for both leaves and named internal nodes.
+    For an internal node, lineage is the majority Lineage among its descendant
+    leaves (ties broken by LINEAGE_ORDER)."""
+    out = dict(leaf_lineage)
+    if not tree_path or not os.path.isfile(tree_path):
+        return out
+    try:
+        from Bio import Phylo
+    except ImportError:
+        print("Warning: Bio.Phylo not available; ancestor lineage colors will "
+              "fall back to 'Unknown'", file=sys.stderr)
+        return out
+    tree = Phylo.read(tree_path, "newick")
+    rank = {l: i for i, l in enumerate(LINEAGE_ORDER)}
+    for clade in tree.find_clades():
+        if not clade.name or clade.is_terminal():
+            continue
+        counts = defaultdict(int)
+        for leaf in clade.get_terminals():
+            lin = leaf_lineage.get(leaf.name)
+            if lin:
+                counts[lin] += 1
+        if counts:
+            # Sort by (-count, rank) so ties go to lineage_order priority
+            best = min(counts.items(),
+                       key=lambda kv: (-kv[1], rank.get(kv[0], 999)))
+            out[clade.name] = best[0]
+    return out
+
+
 def display_name(label, name_map):
     """Return the English/scientific name if `label` looks like a GC[AF]_
     accession that we have a mapping for; otherwise return the label
@@ -401,6 +469,13 @@ def main():
                         "with at least accession+ScientificName, ideally also EnglishName")
     p.add_argument("--scinames", action="append", default=[],
                    help="extra accession\\tScientificName TSV; can be repeated")
+    p.add_argument("--tree",
+                   default=os.path.join(
+                       os.path.dirname(os.path.abspath(__file__)),
+                       "..", "577way", "vgp-577way.nwk"),
+                   help="newick tree with named internal nodes; used to "
+                        "assign a lineage to each ancestor by majority vote "
+                        "of its descendant leaves")
     p.add_argument("--exclude-stages", default="vgp",
                    help="comma-separated log filename prefixes to skip "
                         "(default: 'vgp', which excludes the chains and "
@@ -410,6 +485,13 @@ def main():
 
     name_map = load_name_map(args.annotations, args.scinames)
     print(f"Loaded {len(name_map)} accession name mappings", file=sys.stderr)
+
+    leaf_lineage = load_lineage_map(args.annotations)
+    lineage_map = build_lineage_map(args.tree, leaf_lineage)
+    print(f"Loaded lineage for {len(leaf_lineage)} leaves; "
+          f"resolved {len(lineage_map)} total nodes "
+          f"(leaves + ancestors via tree {os.path.basename(args.tree) if args.tree else 'NONE'})",
+          file=sys.stderr)
 
     os.makedirs(args.out_dir, exist_ok=True)
 
@@ -667,7 +749,8 @@ def main():
     # ---- cactus_consolidated peak memory per ancestor ----
     if consolidated_meta:
         plot_consolidated_memory(consolidated_meta, args.out_dir,
-                                 args.prefix, args.top, name_map)
+                                 args.prefix, args.top, name_map,
+                                 lineage_map)
 
 
 def plot_lastz_per_genome(per_genome, out_dir, prefix, top, name_map):
@@ -729,9 +812,11 @@ def plot_lastz_per_genome(per_genome, out_dir, prefix, top, name_map):
     print(f"Wrote {tsv}", file=sys.stderr)
 
 
-def plot_consolidated_memory(meta, out_dir, prefix, top, name_map):
-    """Bar chart of cactus_consolidated peak memory for the top-N ancestors,
-    plus a histogram of all ancestors' memory usage.
+def plot_consolidated_memory(meta, out_dir, prefix, top, name_map,
+                             lineage_map):
+    """Bar chart of cactus_consolidated peak memory for the top-N ancestors
+    (colored by lineage), plus a lineage-stacked histogram of all ancestors'
+    memory usage.
     """
     events_sorted = sorted(meta.keys(),
                            key=lambda e: -meta[e]["mem_bytes"])
@@ -742,45 +827,56 @@ def plot_consolidated_memory(meta, out_dir, prefix, top, name_map):
         events_plot = events_sorted
     n = len(events_plot)
     mems_gib = [meta[e]["mem_bytes"] / (2 ** 30) for e in events_plot]
-    secs = [meta[e]["secs"] / 3600.0 for e in events_plot]
+    bar_lineages = [lineage_map.get(e, "Unknown") for e in events_plot]
+    bar_colors = [LINEAGE_COLORS.get(l, LINEAGE_COLORS["Unknown"])
+                  for l in bar_lineages]
 
     fig, axes = plt.subplots(2, 1, figsize=(max(8, n * 0.22), 9),
                              gridspec_kw={"height_ratios": [3, 2]})
 
-    # Top: per-event peak memory bar; color encodes walltime so the user
-    # can see whether memory and time scale together.
+    # Top: per-event peak memory bar; color encodes lineage.
     ax = axes[0]
-    norm = plt.Normalize(vmin=0, vmax=max(secs) if secs else 1)
-    cmap = plt.get_cmap("viridis")
-    bar_colors = [cmap(norm(s)) for s in secs]
     ax.bar(np.arange(n), mems_gib, color=bar_colors, width=0.9)
     ax.set_xticks(np.arange(n))
     ax.set_xticklabels([display_name(e, name_map) for e in events_plot],
                        rotation=90, fontsize=8)
     ax.set_ylabel("peak memory (GiB)")
     title = (f"cactus_consolidated peak memory "
-             f"(top {n} of {n_total} ancestors)") \
+             f"(top {n} of {n_total} ancestors, colored by lineage)") \
         if n < n_total else \
-        f"cactus_consolidated peak memory ({n} ancestors)"
+        f"cactus_consolidated peak memory ({n} ancestors, colored by lineage)"
     ax.set_title(title)
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-    cbar = fig.colorbar(sm, ax=ax, pad=0.01)
-    cbar.set_label("walltime (h)")
+    # Lineage legend (only for lineages actually present in the bars or hist)
+    all_lineages = set(lineage_map.get(e, "Unknown") for e in events_sorted)
+    legend_lineages = [l for l in LINEAGE_ORDER if l in all_lineages]
+    if "Unknown" in all_lineages:
+        legend_lineages.append("Unknown")
+    handles = [plt.Rectangle((0, 0), 1, 1,
+                             color=LINEAGE_COLORS.get(l, LINEAGE_COLORS["Unknown"]))
+               for l in legend_lineages]
+    ax.legend(handles, legend_lineages, loc="upper right", title="Lineage")
 
-    # Bottom: histogram of all ancestors' memory.
+    # Bottom: lineage-stacked histogram of all ancestors' memory.
     ax2 = axes[1]
-    all_mem = [meta[e]["mem_bytes"] / (2 ** 30) for e in events_sorted]
-    ax2.hist(all_mem, bins=40, color="#4c72b0", edgecolor="black")
+    all_mem = np.array([meta[e]["mem_bytes"] / (2 ** 30)
+                        for e in events_sorted])
+    all_lin = [lineage_map.get(e, "Unknown") for e in events_sorted]
+    bins = np.linspace(0, all_mem.max() * 1.02, 41)
+    stacks = [all_mem[[i for i, l in enumerate(all_lin) if l == lin]]
+              for lin in legend_lineages]
+    ax2.hist(stacks, bins=bins, stacked=True,
+             color=[LINEAGE_COLORS.get(l, LINEAGE_COLORS["Unknown"])
+                    for l in legend_lineages],
+             label=legend_lineages, edgecolor="black", linewidth=0.3)
     ax2.set_xlabel("peak memory (GiB)")
     ax2.set_ylabel("# ancestors")
     ax2.set_title(f"Distribution of cactus_consolidated peak memory "
-                  f"(n={n_total})")
+                  f"(n={n_total}, stacked by lineage)")
     ax2.axvline(np.median(all_mem), color="red", linestyle="--",
                 label=f"median = {np.median(all_mem):.1f} GiB")
-    ax2.axvline(np.percentile(all_mem, 95), color="orange", linestyle="--",
+    ax2.axvline(np.percentile(all_mem, 95), color="black", linestyle="--",
                 label=f"p95 = {np.percentile(all_mem, 95):.1f} GiB")
-    ax2.legend()
+    ax2.legend(loc="upper right", fontsize=8)
 
     fig.tight_layout()
     out = os.path.join(out_dir, f"{prefix}consolidated_memory.png")
