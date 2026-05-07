@@ -80,7 +80,7 @@ For each MAF we could generate three phyloP tracks via `--subtree`: the full tre
 ```
 cactus-phast jobstore/js-phast-hg38 vgp-577way-v1-hg38.single.maf.gz vgp-577way-v1.hal GCA_000001405.15 conservation/GCA_000001405.15/vgp-577way-v1-hg38.single.phyloP.wig.gz --geneAnnotation https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.knownGene.gtf.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hg38.phyloP.log &
 
-cactus-phast jobstore/js-phast-mm39 vgp-577way-v1-mm39.single.maf.gz vgp-577way-v1.hal GCA_949316315.1 conservation/GCA_949316315.1/vgp-577way-v1-mm39.single.phyloP.wig.gz --geneAnnotation https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/genes/mm39.ncbiRefSeq.gtf.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mm39.phyloP.log &
+slecactus-phast jobstore/js-phast-mm39 vgp-577way-v1-mm39.single.maf.gz vgp-577way-v1.hal GCA_000001635.9 conservation/GCA_000001635.9/vgp-577way-v1-mm39.single.phyloP.wig.gz --geneAnnotation https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/genes/mm39.ncbiRefSeq.gtf.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-mm39.phyloP.log &
 
 cactus-phast jobstore/js-phast-hs1 vgp-577way-v1-hs1.single.maf.gz vgp-577way-v1.hal GCA_009914755.4 conservation/GCA_009914755.4/vgp-577way-v1-hs1.single.phyloP.wig.gz --geneAnnotation https://hgdownload.soe.ucsc.edu/goldenPath/hs1/bigZips/genes/hs1.ncbiRefSeq.gtf.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-hs1.phyloP.log &
 
@@ -110,7 +110,6 @@ cactus-phast jobstore/js-phast-mexican_tetra vgp-577way-v1-mexican_tetra.single.
 
 cactus-phast jobstore/js-phast-coelacanth vgp-577way-v1-coelacanth.single.maf.gz vgp-577way-v1.hal GCF_037176945.1 conservation/GCF_037176945.1/vgp-577way-v1-coelacanth.single.phyloP.wig.gz --geneAnnotation https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/037/176/945/GCF_037176945.1_fLatCha1.pri/GCF_037176945.1_fLatCha1.pri_genomic.gff.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-coelacanth.phyloP.log &
 
-wait
 ```
 
 Chains
