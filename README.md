@@ -110,6 +110,13 @@ cactus-phast jobstore/js-phast-mexican_tetra vgp-577way-v1-mexican_tetra.single.
 
 cactus-phast jobstore/js-phast-coelacanth vgp-577way-v1-coelacanth.single.maf.gz vgp-577way-v1.hal GCF_037176945.1 conservation/GCF_037176945.1/vgp-577way-v1-coelacanth.single.phyloP.wig.gz --geneAnnotation https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/037/176/945/GCF_037176945.1_fLatCha1.pri/GCF_037176945.1_fLatCha1.pri_genomic.gff.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-coelacanth.phyloP.log &
 
+wait
+
+./scripts/rename-gff-refseq-to-genbank.sh GCF_048771995.1 GCA_048771995.1 GCA_048771995.1.refseq-renamed.gff.gz
+
+cactus-phast jobstore/js-phast-zebra_finch vgp-577way-v1-zebra_finch.single.maf.gz vgp-577way-v1.hal GCA_048771995.1 conservation/GCA_048771995.1/vgp-577way-v1-zebra_finch.single.phyloP.wig.gz --geneAnnotation GCA_048771995.1.refseq-renamed.gff.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-zebra_finch.phyloP.log &
+
+cactus-phast jobstore/js-phast-zebra_finch-birds vgp-577way-v1-zebra_finch.single.maf.gz vgp-577way-v1.hal GCA_048771995.1 conservation/GCA_048771995.1/vgp-577way-v1-zebra_finch.single.phyloP.wig.gz --root BirdsAnc0 --geneAnnotation GCA_048771995.1.refseq-renamed.gff.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-zebra_finch.rBirdsAnc0.phyloP.log &
 ```
 
 Chains
