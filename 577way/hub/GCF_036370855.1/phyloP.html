@@ -1,0 +1,32 @@
+<h2>VGP 577-way PhyloP conservation — emu (GCF_036370855.1)</h2>
+
+<p>Per-base PhyloP conservation scores from the
+<b>vgp-577way-v1</b> Progressive Cactus alignment of 577 vertebrate
+genomes, anchored at <code>emu</code> (GCF_036370855.1).</p>
+
+<h3>Methods</h3>
+
+<p>Computed with <code>cactus-phast</code> from
+<a href="https://github.com/ComparativeGenomicsToolkit/cactus">Cactus</a>
+v3.2.0. The reference's CDS annotation was used to extract 4-fold-degenerate
+sites for neutral-model training; the trained model is the <code>REV</code>
+substitution model fit by <code>phyloFit --EM --precision HIGH</code> with
+<code>modFreqs</code>-symmetrized background frequencies; per-base scores
+are <code>-log10(p)</code> from <code>phyloP --method LRT --mode CONACC</code>.
+A <code>--root &lt;CladeAnc&gt;</code> variant restricts the entire pipeline
+(model training and scoring) to the named clade; a
+<code>--subtree &lt;CladeAnc&gt;</code> variant trains on the full tree but
+performs the per-base LRT only on the named clade.</p>
+
+<h3>Variant: full 577-way tree</h3>
+<p>Bigwig: <code>vgp-577way-v1-emu.single.phyloP.bw</code></p>
+<pre>
+cactus-phast jobstore/js-phast-emu vgp-577way-v1-emu.single.maf.gz vgp-577way-v1.hal GCF_036370855.1 conservation/GCF_036370855.1/vgp-577way-v1-emu.single.phyloP.wig.gz --geneAnnotation https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/036/370/855/GCF_036370855.1_bDroNov1.hap1/GCF_036370855.1_bDroNov1.hap1_genomic.gff.gz --substMod REV --modFreqs --precision HIGH --bigwig --batchSystem slurm --chunkCores 32 --phyloFitCores 64 --slurmPartition medium --doubleMem true --slurmTime 11:00:00 --retryCount 5 --maxMemory 1Ti --disableProgress --logFile vgp-577way-v1-prep/logs/vgp-577way-v1-emu.phyloP.log
+</pre>
+
+<p>Source: <a href="https://github.com/glennhickey/vgp-cactus">github.com/glennhickey/vgp-cactus</a> /
+<a href="https://github.com/ComparativeGenomicsToolkit/cactus">github.com/ComparativeGenomicsToolkit/cactus</a></p>
+
+<h3>Contact</h3>
+
+<p>Glenn Hickey &lt;<a href="mailto:glenn.hickey@gmail.com">glenn.hickey@gmail.com</a>&gt;</p>

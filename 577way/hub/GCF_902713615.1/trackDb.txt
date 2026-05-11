@@ -1,0 +1,22 @@
+track vgp577wayPhyloP
+compositeTrack on
+shortLabel VGP 577-way phyloP
+longLabel VGP 577-way phyloP conservation (anchored at catshark)
+type bigWig
+visibility full
+maxHeightPixels 100:50:11
+viewLimits -5.0:10.0
+viewLimitsMax -20:20
+autoScale off
+windowingFunction mean+whiskers
+color 25,25,95
+altColor 230,170,40
+html phyloP
+
+    track vgp577wayPhyloPFull
+    parent vgp577wayPhyloP on
+    shortLabel full-tree
+    longLabel VGP 577-way phyloP — catshark
+    bigDataUrl vgp-577way-v1-catshark.single.phyloP.bw
+    type bigWig
+

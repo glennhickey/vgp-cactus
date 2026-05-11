@@ -1,0 +1,5 @@
+hub vgp-577way-chains
+shortLabel VGP 577-way Chains
+longLabel VGP 577-way Cactus Alignment Chains to hg38
+genomesFile genomes.txt
+email hickey@soe.ucsc.edu

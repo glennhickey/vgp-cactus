@@ -1,0 +1,72 @@
+<h1>VGP 577-way PhyloP Conservation</h1>
+
+<p>Per-base PhyloP conservation tracks computed from
+<b>vgp-577way-v1</b>, a Progressive Cactus alignment of 577 vertebrate
+genomes. The alignment was produced with
+<a href="https://github.com/ComparativeGenomicsToolkit/cactus">Cactus</a>
+v3.2.0 from the
+<a href="https://genomeark.s3.amazonaws.com/index.html?prefix=downstream_analyses/genome_alignments/cactus/577way/">VGP
+phase-1 ROADIES tree (v1.1.16b) plus hg38 and mm39</a>; the seqfile,
+guide tree, and per-reference MAF + PhyloP commands are documented in
+the source repository at
+<a href="https://github.com/glennhickey/vgp-cactus">github.com/glennhickey/vgp-cactus</a>.</p>
+
+<h2>Methods</h2>
+
+<p>Each track was produced with <code>cactus-phast</code> from Cactus
+v3.2.0. <code>cactus-phast</code> is a Toil-parallelized wrapper around
+the <a href="http://compgen.cshl.edu/phast/">PHAST</a> package
+(<code>phyloFit</code> + <code>phyloP</code>) for whole-genome
+conservation scoring; see the
+<a href="https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/doc/progressive.md#conservation-scores">progressive.md</a>
+documentation for a pipeline walkthrough.</p>
+
+<p>For each reference genome:</p>
+<ol>
+  <li>The <a href="https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/doc/progressive.md#maf-export">single-coverage MAF</a>
+      anchored at the reference was exported from the HAL with
+      <code>cactus-hal2maf --outType norm single</code>.</li>
+  <li>4-fold-degenerate sites were extracted (<code>msa_view --4d</code>)
+      from the reference's CDS annotation, single-cover-filtered, and
+      aggregated across reference contigs.</li>
+  <li>A neutral substitution model was trained with
+      <code>phyloFit --EM --subst-mod REV --precision HIGH</code>; its
+      background frequencies were then symmetrized with
+      <code>modFreqs</code> to enforce reversibility (mirroring the UCSC
+      published phyloP-track convention).</li>
+  <li>Per-base conservation scores were computed with
+      <code>phyloP --method LRT --mode CONACC --wig-scores</code>,
+      against the full 577-way tree.</li>
+</ol>
+
+<p>Conservation scores are signed <code>-log10(p)</code>: positive
+values indicate unexpected conservation, negative values indicate
+unexpected acceleration relative to the neutral model.</p>
+
+<h2>Per-genome details</h2>
+
+<p>The exact <code>cactus-phast</code> command line used to produce each
+track is recorded on the corresponding track's description page (click
+the track name in the browser). The CDS annotation source is also
+documented per-genome — for <code>GCF_*</code> assemblies it is the
+NCBI RefSeq GFF for that accession; for <code>hg38</code>,
+<code>mm39</code>, and <code>hs1</code> it is the UCSC gene set.</p>
+
+<h2>Source data</h2>
+
+<p>The HAL alignment, MAFs, trained models (<code>.mod</code>), aggregated 4d-site
+sufficient statistics (<code>.4d.ss</code>), and these per-base PhyloP
+tracks are available from the
+<a href="https://genomeark.s3.amazonaws.com/index.html?prefix=downstream_analyses/genome_alignments/cactus/577way/">genomeark
+S3 bucket</a>.</p>
+
+<h2>Citation</h2>
+
+<p>If you use these tracks please cite the
+<a href="https://doi.org/10.1038/s41586-020-2871-y">Progressive Cactus paper</a>
+and the
+<a href="https://compgen.cshl.edu/phast/">PHAST</a> package.</p>
+
+<h2>Contact</h2>
+
+<p>Glenn Hickey &lt;<a href="mailto:glenn.hickey@gmail.com">glenn.hickey@gmail.com</a>&gt;</p>
