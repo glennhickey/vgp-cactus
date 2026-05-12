@@ -38,29 +38,41 @@ NATIVE_DB = {
     'GCA_000001635.9':  'mm39',
 }
 
-# vgp-577way-v1-<commonName>.single.phyloP[.r<root>][.s<subtree>].bw
+# vgp-577way-v1-<commonName>.single.phyloP[.<token>]*.bw
+# Tokens after `.phyloP.` distinguish cactus-phast variants:
+#   .r<RootName>         — --root (RootName is CamelCase, e.g. MammalsAnc0)
+#   .s<SubtreeName>      — --subtree (SubtreeName is CamelCase)
+#   .<anything-else>     — extra annotation baked into the user's --output
+#                          path (e.g. .ssrev to mark the SSREV model run).
+# Root and subtree tokens are distinguished from extras by the second
+# character being uppercase, since our root/subtree names in the
+# 577-way tree are all CamelCase (Anc0, MammalsAnc0, VertebratesAnc0,
+# BirdsAnc0, ...) but model markers like `ssrev` are lowercase.
 BW_RE = re.compile(
     r'^vgp-577way-v1-(?P<common>[A-Za-z0-9_]+)\.single\.phyloP'
-    r'(?P<vtokens>(?:\.[rs][A-Za-z0-9_]+)*)\.bw$'
+    r'(?P<vtokens>(?:\.[A-Za-z0-9_]+)*)\.bw$'
 )
 
 
 def parse_variant(bw_basename):
-    """Return (common, root_or_None, subtree_or_None) for a cactus-phast
-    bigwig basename, or None if the name doesn't fit."""
+    """Return (common, root_or_None, subtree_or_None, extras_list) for a
+    cactus-phast bigwig basename, or None if the name doesn't fit."""
     m = BW_RE.match(bw_basename)
     if not m:
         return None
     common = m.group('common')
     root = subtree = None
+    extras = []
     for tok in m.group('vtokens').split('.'):
         if not tok:
             continue
-        if tok.startswith('r'):
+        if len(tok) >= 2 and tok[0] == 'r' and tok[1].isupper():
             root = tok[1:]
-        elif tok.startswith('s'):
+        elif len(tok) >= 2 and tok[0] == 's' and tok[1].isupper():
             subtree = tok[1:]
-    return common, root, subtree
+        else:
+            extras.append(tok)
+    return common, root, subtree, extras
 
 
 def parse_phast_cmd(cmd):
@@ -89,7 +101,11 @@ def parse_phast_cmd(cmd):
 def cmd_produced_bws(cmd):
     """Given a cactus-phast command, return the basenames of every bigwig
     it would emit (mirrors cactus-phast's .r<root>/.s<subtree> output
-    naming logic)."""
+    naming logic). Special case: a --subtree value equal to the effective
+    root (--root if set, else 'Anc0', the HAL root in vgp-577way) is
+    emitted as the unsuffixed global track on that (sub)tree — no .s
+    token is added. So `--subtree Anc0 MammalsAnc0` produces the global
+    bigwig + .sMammalsAnc0, not .sAnc0 + .sMammalsAnc0."""
     ref, out, root, subtrees = parse_phast_cmd(cmd)
     if not out:
         return []
@@ -100,9 +116,16 @@ def cmd_produced_bws(cmd):
             break
     if root:
         base = base + '.r' + root
-    if subtrees:
-        return [base + '.s' + s + '.bw' for s in subtrees]
-    return [base + '.bw']
+    if not subtrees:
+        return [base + '.bw']
+    effective_root = root if root else 'Anc0'
+    out_bws = []
+    for s in subtrees:
+        if s == effective_root:
+            out_bws.append(base + '.bw')  # global (no .s token)
+        else:
+            out_bws.append(base + '.s' + s + '.bw')
+    return out_bws
 
 
 def read_readme_cmds(readme_path):
@@ -134,7 +157,7 @@ def enumerate_from_dir(src_dir, cmd_by_bw):
             info = parse_variant(bw)
             if not info:
                 continue
-            tracks.append((bw, info[1], info[2], cmd_by_bw.get(bw, '')))
+            tracks.append((bw, info[1], info[2], info[3], cmd_by_bw.get(bw, '')))
         if not tracks:
             continue
         m = BW_RE.match(tracks[0][0])
@@ -153,7 +176,7 @@ def enumerate_from_readme(cmd_by_bw):
         if not info or not ref:
             continue
         common = info[0]
-        by_acc.setdefault(ref, (common, []))[1].append((bw, info[1], info[2], cmd))
+        by_acc.setdefault(ref, (common, []))[1].append((bw, info[1], info[2], info[3], cmd))
     out = []
     for acc in sorted(by_acc):
         common, tracks = by_acc[acc]
@@ -162,24 +185,27 @@ def enumerate_from_readme(cmd_by_bw):
     return out
 
 
-def variant_label(root, subtree):
+def variant_label(root, subtree, extras):
     parts = []
     if root:    parts.append('clade ' + root)
     if subtree: parts.append('lineage ' + subtree)
+    if extras:  parts.append(' '.join(extras))
     return ' (' + '; '.join(parts) + ')' if parts else ''
 
 
-def variant_short(root, subtree):
+def variant_short(root, subtree, extras):
     parts = []
     if root:    parts.append(root)
     if subtree: parts.append('s' + subtree)
+    if extras:  parts.extend(extras)
     return '_'.join(parts) if parts else 'full'
 
 
-def variant_track_id(root, subtree):
+def variant_track_id(root, subtree, extras):
     s = ''
     if root:    s += 'R' + root
     if subtree: s += 'S' + subtree
+    if extras:  s += ''.join(e.capitalize() for e in extras)
     return s or 'Full'
 
 
@@ -204,10 +230,11 @@ def write_genome(hub_dir, acc, common, tracks):
             'color 25,25,95\n'
             'altColor 230,170,40\n'
             'html phyloP\n\n'.format(common=common))
-        for i, (bw, root, subtree, _) in enumerate(tracks):
-            tid = 'vgp577wayPhyloP{}'.format(variant_track_id(root, subtree))
+        for i, (bw, root, subtree, extras, _) in enumerate(tracks):
+            tid = 'vgp577wayPhyloP{}'.format(variant_track_id(root, subtree, extras))
             on_off = 'on' if i == 0 else 'off'
-            short = 'full-tree' if not (root or subtree) else variant_short(root, subtree)
+            short = ('full-tree' if not (root or subtree or extras)
+                     else variant_short(root, subtree, extras))
             f.write(
                 '    track {tid}\n'
                 '    parent vgp577wayPhyloP {on_off}\n'
@@ -216,12 +243,13 @@ def write_genome(hub_dir, acc, common, tracks):
                 '    bigDataUrl {bw}\n'
                 '    type bigWig\n\n'.format(
                     tid=tid, on_off=on_off, short=short,
-                    lab=variant_label(root, subtree), common=common, bw=bw))
+                    lab=variant_label(root, subtree, extras),
+                    common=common, bw=bw))
 
     sections = []
-    for bw, root, subtree, cmd in tracks:
-        if root or subtree:
-            heading = 'Variant: {}'.format(variant_label(root, subtree).strip(' ()'))
+    for bw, root, subtree, extras, cmd in tracks:
+        if root or subtree or extras:
+            heading = 'Variant: {}'.format(variant_label(root, subtree, extras).strip(' ()'))
         else:
             heading = 'Variant: full 577-way tree'
         cmd_block = cmd if cmd else '(command not recorded; see https://github.com/glennhickey/vgp-cactus)'
@@ -305,10 +333,11 @@ def main():
     print('Producing hub for {} genomes:'.format(len(genomes)))
     for acc, common, tracks in genomes:
         print('  {} ({}) — {} track(s)'.format(acc, common, len(tracks)))
-        for bw, root, subtree, _ in tracks:
+        for bw, root, subtree, extras, _ in tracks:
             tag = []
             if root:    tag.append('--root ' + root)
             if subtree: tag.append('--subtree ' + subtree)
+            if extras:  tag.append('extra: ' + ' '.join(extras))
             print('      {}{}'.format(bw, '  [' + ', '.join(tag) + ']' if tag else ''))
 
     os.makedirs(args.hub_dir, exist_ok=True)
